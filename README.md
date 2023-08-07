@@ -6,8 +6,6 @@
 - Archisha Panda - [@ArchishaPanda](https://github.com/ArchishaPanda)
 - Vishnu Priya - [@vishnu-epic](https://github.com/vishnu-epic)
 
----
-
 ## Problem Statement
 The existing event planning process is complex, time-consuming, and lacks efficient coordination and organisation. This project aims to provide a solution by simplifying the event planning process, enhancing collaboration, and ensuring seamless execution of events.
 
@@ -61,8 +59,5 @@ As we continue to evolve Soirée, our vision includes an array of features that 
 
 Stay tuned for these exciting advancements that will redefine your event planning journey!
 
----
 ## Feedback and Suggestions
 We welcome feedback, suggestions, and questions. If you have any ideas for improvements or questions about our project, feel free to reach out to any of the team members.
-
----
