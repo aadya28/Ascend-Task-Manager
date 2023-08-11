@@ -24,7 +24,6 @@
             height: 15vh;
             box-sizing: border-box;
             background-color: #012b29;
-            color: #fff;
             padding: 1vh;
             z-index: 999;
             border-bottom: 1px solid white;
@@ -32,18 +31,79 @@
 
         /* The Header tag -> the nav tag -> navigation bar */
         nav {
-            position: fixed;
-            top: 0;
             width: 100%;
-            height: 15vh;
+            height: 100%;
             box-sizing: border-box;
             background-color: #012b29;
-            color: #fff;
-            padding: 1vh;
-            z-index: 999;
-            border-bottom: 1px solid white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
         }
 
+        .logo {
+            width: 13vw;
+            height: 13vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        .navbar-links ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-links li {
+            margin-right: 5vh;
+        }
+
+        .navbar-links a {
+            font-size: 4vh;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropbtn {
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #012b29;
+            min-width: 10vh;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .dropdown-content a {
+            color: white;
+            padding: 2vh 2vh;
+            text-decoration: none;
+            display: block;
+            font-size: 3vh
+        }
+
+        .dropdown-content a:hover {
+            background-color: #024c48;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
         /*---------------------------------------------------------------------------*/
         /* The main tag is further divided into 2 parts:
         1. The sidebar
@@ -133,7 +193,28 @@
 <body>
     <header>
         <nav>
-            <!-- Navbar content goes here -->
+            <div class="logo">
+                <img src="logo%20icon.png" alt="logo">
+                <img src="logo%20text.png" alt="">
+            </div>
+
+            <div class="navbar-links">
+                <ul class="nav">
+                    <li><a class="active" href="homepage.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropbtn">Services</a>
+                        <div class="dropdown-content">
+                            <a href="#">Venue Recommendations</a>
+                            <a href="#">Vendor Recommendations</a>
+                            <a href="#">Guest List Manager</a>
+                            <a href="#">Task Manager</a>
+                            <a href="#">Decoration Ideas</a>
+                        </div>
+                    </li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
         </nav>
     </header>
 
