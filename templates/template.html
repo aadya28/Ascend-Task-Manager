@@ -3,21 +3,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Template</title>
+    <title>{% block title %}Template{% endblock %}</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/styles.css')}}">
 </head>
 
 <body>
     <header>
         <nav>
+            {% block navigation_bar %}
             <div class="logo">
-                <img src="../images/logo_icon.png" alt="logo">
-                <img src="../images/logo_text.png" alt="">
+                <img src="{{url_for('static', filename='assets/images/logo_icon.png')}}" alt="logo">
+                <img src="{{url_for('static', filename='assets/images/logo_text.png')}}" alt="">
             </div>
 
             <div class="navbar-links">
                 <ul class="nav">
-                    <li><a class="active" href="homepage.html">Home</a></li>
-                    <li><a href="about.html">About</a></li>
+                    <li><a class="active" href="#">Home</a></li>
+                    <li><a href="#">About</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropbtn">Services</a>
                         <div class="dropdown-content">
@@ -28,14 +30,16 @@
                             <a href="#">Decoration Ideas</a>
                         </div>
                     </li>
-                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="#">Contact</a></li>
                 </ul>
             </div>
+            {% endblock %}
         </nav>
     </header>
 
     <main>
         <div class="sidebar">
+            {% block sidebar %}
             <div class="sidebar-heading">
                 <a href="#">Your Workspace</a>
             </div>
@@ -56,12 +60,17 @@
                     <div class="link"><a href="#">Board 3</a></div>
                 </div>
             </div>
+            {% endblock %}
         </div>
 
         <div class="main-content">
+            {% block main_content %}
             <!-- Main-content of individual page goes here -->
+            {% endblock %}
         </div>
     </main>
+
+    <script src="{{url_for('static', filename='scripts/script.js')}}"></script>
 </body>
 
 </html>

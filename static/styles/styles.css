@@ -65,6 +65,10 @@ nav {
     font-weight: bold;
 }
 
+.navbar-links a:hover {
+    color: #caaa3c;
+}
+
 .dropdown {
     position: relative;
 }
