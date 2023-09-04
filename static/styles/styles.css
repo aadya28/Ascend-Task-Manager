@@ -59,7 +59,7 @@ nav {
 }
 
 .navbar-links a {
-    font-size: 4vh;
+    font-size: 3vh;
     text-decoration: none;
     color: white;
     font-weight: bold;
@@ -77,7 +77,7 @@ nav {
     cursor: pointer;
 }
 
-.dropdown-content {
+nav .dropdown-content {
     display: none;
     position: absolute;
     background-color: #012b29;
@@ -86,7 +86,7 @@ nav {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.dropdown-content a {
+nav .dropdown-content a {
     color: white;
     padding: 2vh 2vh;
     text-decoration: none;
@@ -94,11 +94,12 @@ nav {
     font-size: 3vh
 }
 
-.dropdown-content a:hover {
-    background-color: #024c48;
+nav .dropdown-content a:hover {
+    color: white;
+    background-color: #0f3a35;
 }
 
-.dropdown:hover .dropdown-content {
+nav .dropdown:hover .dropdown-content {
     display: block;
 }
 /*---------------------------------------------------------------------------*/
@@ -162,7 +163,7 @@ main{
 .sidebar-boards a {
     text-decoration: none;
     color: white;
-    font-size: 1.5vw;
+    font-size: 2.5vh;
 }
 
 /* All the features and boards are in the class "link" */
