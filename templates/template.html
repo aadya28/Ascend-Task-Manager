@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <title>{% block title %}Template{% endblock %}</title>
     <link rel="stylesheet" href="{{url_for('static', filename='styles/styles.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/aadya-styles.css')}}">
+
 </head>
 
 <body>
@@ -71,6 +73,7 @@
     </main>
 
     <script src="{{url_for('static', filename='scripts/script.js')}}"></script>
+    <script src="{{url_for('static', filename='scripts/aadya-script.js')}}"></script>
 </body>
 
 </html>
