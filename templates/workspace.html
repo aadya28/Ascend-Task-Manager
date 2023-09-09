@@ -1,0 +1,30 @@
+{% extends "template.html" %}
+
+{% block title %}Workspace{% endblock %}
+
+{% block main_content %}
+    <div class="workspace-section">
+        <div class="workspace-header">
+            <h1>Let's Get Started!</h1>
+        </div>
+
+        <div class="create-new-board">
+            <a href="/board">Create New Board</a>
+        </div>
+
+        <div class="workspace-header">
+            <h1>Your Workspace Boards</h1>
+        </div>
+
+        <div class="board-list">
+            <div class="board">
+                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper 1.jpg')}}" alt="Board 1">
+                <h3>Board 1</h3>
+            </div>
+            <div class="board">
+                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper 2.jpg')}}" alt="Board 2">
+                <h3>Board 2</h3>
+            </div>
+        </div>
+    </div>
+{% endblock %}
