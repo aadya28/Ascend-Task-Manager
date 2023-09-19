@@ -1,35 +1,35 @@
-const dropdown = document.querySelector('.options-section');
-
-const button = dropdown.querySelector('.board-actions')
-const content = dropdown.querySelector('.dropdown-content');
-
-button.addEventListener('click', () => {
-    // console.log("dropdown clicked");
-    content.classList.toggle('visible');
-    adjustDropdownPosition(content);
-});
-
-document.addEventListener('click', event => {
-    if (!dropdown.contains(event.target)) {
-        content.classList.remove('visible');
-    }
-});
-
-// Function to adjust the position of the dropdown content
-function adjustDropdownPosition(content) {
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const dropdownWidth = content.offsetWidth;
-    const buttonRect = content.previousElementSibling.getBoundingClientRect();
-
-    // To Check if dropdown content is extending beyond the right edge
-    if (buttonRect.right + dropdownWidth > viewportWidth) {
-        content.style.right = '0';
-        content.style.left = 'auto';
-    } else {
-        content.style.right = 'auto';
-        content.style.left = '0';
-    }
-}
+// const dropdown = document.querySelector('.options-section');
+//
+// const button = dropdown.querySelector('.board-actions')
+// const content = dropdown.querySelector('.dropdown-content');
+//
+// button.addEventListener('click', () => {
+//     // console.log("dropdown clicked");
+//     content.classList.toggle('visible');
+//     adjustDropdownPosition(content);
+// });
+//
+// document.addEventListener('click', event => {
+//     if (!dropdown.contains(event.target)) {
+//         content.classList.remove('visible');
+//     }
+// });
+//
+// // Function to adjust the position of the dropdown content
+// function adjustDropdownPosition(content) {
+//     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+//     const dropdownWidth = content.offsetWidth;
+//     const buttonRect = content.previousElementSibling.getBoundingClientRect();
+//
+//     // To Check if dropdown content is extending beyond the right edge
+//     if (buttonRect.right + dropdownWidth > viewportWidth) {
+//         content.style.right = '0';
+//         content.style.left = 'auto';
+//     } else {
+//         content.style.right = 'auto';
+//         content.style.left = '0';
+//     }
+// }
 
 // Event listener for showing the add list form or the add task form
 document.addEventListener('click', event => {
@@ -41,6 +41,8 @@ document.addEventListener('click', event => {
             form.classList.remove('hidden');
         } else if (form.classList.contains('add-task-form')) {
             form.classList.remove('hidden');
+        } else if (form.classList.contains('add-board-form')) {
+            form.classList.remove('hidden');
         }
         showButton.classList.add('hidden');
     }
@@ -50,7 +52,7 @@ document.addEventListener('click', event => {
 document.addEventListener('click', event=>{
     if (event.target.classList.contains('cancel-button')){
         const cancelButton = event.target;
-        const form = cancelButton.closest('.add-list-form') || cancelButton.closest('.add-task-form');
+        const form = cancelButton.closest('.add-list-form') || cancelButton.closest('.add-task-form') || cancelButton.closest('.add-board-form');
         const showButton = form.previousElementSibling;
 
         resetForm(form, showButton);

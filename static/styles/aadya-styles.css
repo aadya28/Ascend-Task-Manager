@@ -316,10 +316,6 @@ main{
     background: #1414f7;
 }
 
-.hidden {
-    display: none;
-}
-
 /*---------------------------------------------------------------------------*/
 /* Workspace-specific styles */
 .workspace-section {
@@ -328,7 +324,7 @@ main{
     overflow-y: auto;
 }
 
-.board, .create-new-board {
+.board {
     background-color: #ccc;
     padding: 2.5vh;
     width: 15vw;
@@ -339,15 +335,29 @@ main{
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
 }
 
-.create-new-board a {
-    text-decoration: none;
+.create-new-board {
+    background-color: #ccc;
+    margin-right: 2.5vh;
+    margin-bottom: 2.5vh;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    width: 17.5vw;
+    height: 14.5vh;
+}
+
+.show-add-form {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #ccc;
     font-size: 2.5vh;
     font-weight: bold;
-    color: rgb(0, 0, 0, 0.75);
+    color: rgb(0, 0, 0, 0.75)
 }
 
 .board-list {
@@ -369,6 +379,78 @@ main{
 }
 
 .board:hover,
-.create-new-board:hover {
+.create-new-board button:hover {
     background-color: #bbb;
+}
+
+.add-board-form {
+    display: flex;
+    margin-top: 0;
+    margin-left: 18vw;
+    border-radius: 1.5vh;
+    flex-direction: column;
+    padding: 1.5vh;
+    background-color: #f0f0f0;
+    z-index: 999;
+    width: 22rem;
+    height: auto;
+}
+
+.add-board-form input {
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.button-group button{
+    color: white;
+    background: #0606d1;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 1vh;
+    font-size: medium;
+}
+
+.button-group button:hover {
+    background: #1414f7;
+}
+
+.wallpaper-options {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.wallpaper-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin-bottom: 0.5em;
+    padding: 0;
+}
+
+.wallpaper-button img,
+.wallpaper-button span {
+    width: 6em;
+    height: 3em;
+}
+
+.add-board-form h3 {
+    font-size: 1em;
+}
+
+.wallpaper-button:focus {
+    outline: 2px solid blue;
+}
+
+.hidden {
+    display: none;
 }
