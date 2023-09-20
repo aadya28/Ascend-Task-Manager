@@ -32,10 +32,13 @@ create_tables()
 def create_board():
     if request.method == 'POST':
         board_title = request.form.get('board_title')
-        wallpaper = request.form.get('data-wallpaper')
+        selected_wallpaper = request.form.get('selected_wallpaper')
+
+        print("Board Title:", board_title)
+        print("Wallpaper:", selected_wallpaper)
 
         if board_title:
-            new_board = Board(name=board_title, wallpaper=wallpaper)
+            new_board = Board(name=board_title, wallpaper=selected_wallpaper)
             db.session.add(new_board)
             db.session.commit()
     return redirect('/')

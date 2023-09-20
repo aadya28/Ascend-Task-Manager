@@ -18,23 +18,25 @@
 
                     <h3>Background</h3>
                     <div class="wallpaper-options">
-                        <button class="wallpaper-button" type="button" data-wallpaper="Wallpaper_1.jpg">
+                        <button class="wallpaper-button" type="button" value="Wallpaper_1.jpg">
                             <img src="{{url_for('static', filename='assets/images/Wallpaper_1.jpg')}}" alt="Wallpaper 1">
                         </button>
-                        <button class="wallpaper-button" type="button" data-wallpaper="Wallpaper_2.jpg">
+                        <button class="wallpaper-button" type="button" value="Wallpaper_2.jpg">
                             <img src="{{url_for('static', filename='assets/images/Wallpaper_2.jpg')}}" alt="Wallpaper 2">
                         </button>
-                        <button class="wallpaper-button" type="button" data-wallpaper="Wallpaper_3.jpg">
+                        <button class="wallpaper-button" type="button" value="Wallpaper_3.jpg">
                             <img src="{{url_for('static', filename='assets/images/Wallpaper_3.jpg')}}" alt="Wallpaper 3">
                         </button>
-                        <button class="wallpaper-button" type="button" data-wallpaper="Wallpaper_4.jpg">
+                        <button class="wallpaper-button" type="button" value="Wallpaper_4.jpg">
                             <img src="{{url_for('static', filename='assets/images/Wallpaper_4.jpg')}}" alt="Wallpaper 4">
                         </button>
                     </div>
 
+                    <input type="hidden" id="selected-wallpaper" name="selected_wallpaper" value="">
+
                     <div class="button-group">
                         <button class="add-board-button" type="submit">Create</button>
-                        <button class="cancel-button" type="reset">Cancel</button>
+                        <button class="cancel-button" id="cancel-board-button" type="reset">Cancel</button>
                     </div>
                 </form>
             </div>

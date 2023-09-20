@@ -31,6 +31,41 @@
 //     }
 // }
 
+// Getting the data input of the chosen wallpaper
+const wallpaperButtons = document.querySelectorAll('.wallpaper-button');
+const selectedWallpaperInput = document.getElementById('selected-wallpaper');
+
+wallpaperButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        // console.log("reached");
+        const wallpaperValue = this.value;
+        // console.log(wallpaperValue);
+
+        wallpaperButtons.forEach(btn => {
+            btn.classList.remove('selected');
+        });
+
+        this.classList.toggle('selected');
+
+        // Toggle the selection: if the same button is clicked again, clear the selection
+        if (selectedWallpaperInput.value === wallpaperValue) {
+            // console.log("blank");
+            selectedWallpaperInput.value = '';
+        } else {
+            selectedWallpaperInput.value = wallpaperValue;
+        }
+    });
+});
+
+// Reset the wallpaper selection when the cancel button is clicked
+document.getElementById('cancel-board-button').addEventListener('click', function() {
+    // Remove the "selected" class from all wallpaper buttons
+    wallpaperButtons.forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    selectedWallpaperInput.value = '';
+});
+
 // Event listener for showing the add list form or the add task form
 document.addEventListener('click', event => {
     if (event.target.classList.contains('show-add-form')) {

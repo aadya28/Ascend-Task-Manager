@@ -447,7 +447,7 @@ main{
     font-size: 1em;
 }
 
-.wallpaper-button:focus {
+.wallpaper-button.selected {
     outline: 2px solid blue;
 }
 
