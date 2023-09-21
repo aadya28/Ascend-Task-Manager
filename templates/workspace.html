@@ -47,14 +47,20 @@
         </div>
 
         <div class="board-list">
+            {% if boards %}
+            {% for board in boards %}
             <div class="board">
-                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper_1.jpg')}}" alt="Board 1">
-                <h3>Board 1</h3>
+                {% if board.wallpaper %}
+                <img class="board-image" src="{{url_for('static', filename='assets/images/' + board.wallpaper)}}" alt="{{ board.name }}">
+                {% else %}
+                <div class="no-wallpaper"></div>
+                {% endif %}
+                <h3>{{ board.name }}</h3>
             </div>
-            <div class="board">
-                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper_2.jpg')}}" alt="Board 2">
-                <h3>Board 2</h3>
-            </div>
+            {% endfor %}
+            {% else %}
+            <p>You don't have any boards yet. Create a new board to get started.</p>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

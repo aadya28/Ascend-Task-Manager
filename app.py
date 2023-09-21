@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for
+from flask import jsonify
 
 app = Flask(__name__, template_folder='templates')
 
