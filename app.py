@@ -1,7 +1,6 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for
-from flask import jsonify
 
 app = Flask(__name__, template_folder='templates')
 
@@ -52,10 +51,10 @@ def workspace():
 @app.route('/board/<int:board_id>')
 def board(board_id):
     board = Board.query.get(board_id)
+    boards = Board.query.all()
     if board:
-        return render_template('board.html', board=board)
+        return render_template('board.html', board=board, boards=boards)
     else:
-        # Handle the case where the board doesn't exist (optional)
         return "Board not found", 404
 
 if __name__ == "__main__":

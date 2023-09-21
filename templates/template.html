@@ -57,9 +57,17 @@
 
                 <div class="sidebar-boards">
                     <h2>Your Boards</h2>
-                    <div class="link"><a href="#">Board 1</a></div>
-                    <div class="link"><a href="#">Board 2</a></div>
-                    <div class="link"><a href="#">Board 3</a></div>
+                    {% block sidebar_boards %}
+                        {% if boards %}
+                            {% for board in boards %}
+                            <div class="link">
+                                <a href="{{ url_for('board', board_id=board.id) }}">{{ board.name }}</a>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No boards available.</p>
+                        {% endif %}
+                    {% endblock %}
                 </div>
             </div>
             {% endblock %}
