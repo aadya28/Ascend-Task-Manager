@@ -1,11 +1,11 @@
 {% extends "template.html" %}
 
-{% block title %}Board{% endblock %}
+{% block title %}{{ board.name }}{% endblock %}
 
 {% block main_content %}
     <div class="board-title-bar">
         <div class="title-section">
-            <h1 class="title">{{ board_title }}</h1>
+            <h1 class="title">{{ board.name }} </h1>
             <button id="star-board">&#9734</button>
         </div>
         <div class="options-section">
@@ -14,19 +14,18 @@
                 <div class="dropdown-content">
                     <a href="#">Rename Board</a>
                     <a href="#">Delete Board</a>
-                    <a href="#">Create List</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="Lists">
+    <div class="Lists" style="background: {% if board.wallpaper %}url('{{ url_for('static', filename='assets/images/' + board.wallpaper) }}') no-repeat center center fixed; background-size: cover;{% else %} #caaa3c;{% endif %}">
         <div class="add-list">
-            <button class="show-add-form">&#65291; Add a List</button>
+        <button class="show-add-form">&#65291; Add a List</button>
             <div class="add-list-form hidden">
                 <input type="text" class="title" placeholder="Enter List Title">
                 <div class="button-group">
-                    <button class="add-list-button">Add List</button>
+                    <button class="add-list-button" id="add-list-button">Add List</button>
                     <button class="cancel-button">Cancel</button>
                 </div>
             </div>

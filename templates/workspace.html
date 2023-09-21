@@ -49,6 +49,7 @@
         <div class="board-list">
             {% if boards %}
             {% for board in boards %}
+            <a href="{{ url_for('board', board_id=board.id) }}" class="board-link">
             <div class="board">
                 {% if board.wallpaper %}
                 <img class="board-image" src="{{url_for('static', filename='assets/images/' + board.wallpaper)}}" alt="{{ board.name }}">
@@ -57,6 +58,7 @@
                 {% endif %}
                 <h3>{{ board.name }}</h3>
             </div>
+            </a>
             {% endfor %}
             {% else %}
             <p>You don't have any boards yet. Create a new board to get started.</p>

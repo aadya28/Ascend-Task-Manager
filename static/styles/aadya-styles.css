@@ -451,6 +451,9 @@ main{
     outline: 2px solid blue;
 }
 
+.board-list a {
+    text-decoration: none;
+}
 .hidden {
     display: none;
 }

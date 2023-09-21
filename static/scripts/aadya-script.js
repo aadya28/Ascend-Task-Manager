@@ -1,35 +1,40 @@
-// const dropdown = document.querySelector('.options-section');
-//
-// const button = dropdown.querySelector('.board-actions')
-// const content = dropdown.querySelector('.dropdown-content');
-//
-// button.addEventListener('click', () => {
-//     // console.log("dropdown clicked");
-//     content.classList.toggle('visible');
-//     adjustDropdownPosition(content);
-// });
-//
-// document.addEventListener('click', event => {
-//     if (!dropdown.contains(event.target)) {
-//         content.classList.remove('visible');
-//     }
-// });
-//
-// // Function to adjust the position of the dropdown content
-// function adjustDropdownPosition(content) {
-//     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-//     const dropdownWidth = content.offsetWidth;
-//     const buttonRect = content.previousElementSibling.getBoundingClientRect();
-//
-//     // To Check if dropdown content is extending beyond the right edge
-//     if (buttonRect.right + dropdownWidth > viewportWidth) {
-//         content.style.right = '0';
-//         content.style.left = 'auto';
-//     } else {
-//         content.style.right = 'auto';
-//         content.style.left = '0';
-//     }
-// }
+// Select the options dropdown and its elements
+const boardDropdown = document.querySelector('.options-section');
+if (boardDropdown) {
+    const boardDropdownButton = boardDropdown.querySelector('.board-actions');
+    const boardDropdownContent = boardDropdown.querySelector('.dropdown-content');
+
+// Add a click event listener for showing the board dropdown.
+    boardDropdownButton.addEventListener('click', () => {
+        // console.log("board dropdown clicked");
+        boardDropdownContent.classList.toggle('visible');
+        adjustDropdownPosition(boardDropdownContent);
+    });
+
+// Add a global click event listener to close the board dropdown when clicking outside of it
+    document.addEventListener('click', event => {
+        if (!boardDropdown.contains(event.target)) {
+            // Remove the 'visible' class to hide the dropdown content
+            boardDropdownContent.classList.remove('visible');
+        }
+    });
+}
+
+// Function to adjust the position of the dropdown content
+function adjustDropdownPosition(content) {
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    const dropdownWidth = content.offsetWidth;
+    const buttonRect = content.previousElementSibling.getBoundingClientRect();
+
+    // To Check if dropdown content is extending beyond the right edge
+    if (buttonRect.right + dropdownWidth > viewportWidth) {
+        content.style.right = '0';
+        content.style.left = 'auto';
+    } else {
+        content.style.right = 'auto';
+        content.style.left = '0';
+    }
+}
 
 // Getting the data input of the chosen wallpaper
 const wallpaperButtons = document.querySelectorAll('.wallpaper-button');
@@ -58,15 +63,19 @@ wallpaperButtons.forEach(button => {
 });
 
 // Reset the wallpaper selection when the cancel button is clicked
-document.getElementById('cancel-board-button').addEventListener('click', function() {
-    // Remove the "selected" class from all wallpaper buttons
-    wallpaperButtons.forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    selectedWallpaperInput.value = '';
-});
+cancelBoardButton = document.getElementById('cancel-board-button');
 
-// Event listener for showing the add list form or the add task form
+if(cancelBoardButton) {
+    cancelBoardButton.addEventListener('click', function () {
+        // Remove the "selected" class from all wallpaper buttons
+        wallpaperButtons.forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        selectedWallpaperInput.value = '';
+    });
+}
+
+// Event listener for showing the add list form, the add task form or the add board form
 document.addEventListener('click', event => {
     if (event.target.classList.contains('show-add-form')) {
         const showButton = event.target;
@@ -83,7 +92,7 @@ document.addEventListener('click', event => {
     }
 });
 
-//Event listener for cancelling adding a list or a task.
+//Event listener for cancelling adding a list, a task or a board.
 document.addEventListener('click', event=>{
     if (event.target.classList.contains('cancel-button')){
         const cancelButton = event.target;
@@ -104,84 +113,85 @@ function resetForm(form, showButton) {
 }
 
 // Adding a new list
-const addListButton = document.querySelector('.add-list-button');
+const addListButton = document.getElementById('add-list-button');
 
-addListButton.addEventListener('click', () => {
-    // console.log('Add list button clicked');
+if (addListButton) {
+    addListButton.addEventListener('click', () => {
+        // console.log('Add list button clicked');
 
-    const addListForm = addListButton.closest('.add-list-form');
-    const showButton = addListForm.previousElementSibling;
-    const titleInput = addListForm.querySelector('.title');
-    const listTitle = titleInput.value.trim();
+        const addListForm = addListButton.closest('.add-list-form');
+        const showButton = addListForm.previousElementSibling;
+        const titleInput = addListForm.querySelector('.title');
+        const listTitle = titleInput.value.trim();
 
-    // If the list title is empty, set it to "Untitled"
-    const finalListTitle = listTitle !== '' ? listTitle : 'Untitled';
+        // If the list title is empty, set it to "Untitled"
+        const finalListTitle = listTitle !== '' ? listTitle : 'Untitled';
 
-    const newList = document.createElement('div');
-    newList.innerHTML = `
-        <div class="list-title-bar">
-            <h2 class="title">${finalListTitle}</h2>
-            <div class="dropdown">
-                <button class="list-actions">&#8226; &#8226; &#8226;</button>
-                <div class="dropdown-content">
-                    <a href="#rename">Rename List</a>
-                    <a href="#delete">Delete List</a>
-                    <a href="#copy">Copy List</a>
-                    <a href="#move">Move List</a>
+        const newList = document.createElement('div');
+        newList.innerHTML = `
+            <div class="list-title-bar">
+                <h2 class="title">${finalListTitle}</h2>
+                <div class="dropdown">
+                    <button class="list-actions">&#8226; &#8226; &#8226;</button>
+                    <div class="dropdown-content">
+                        <a href="#rename">Rename List</a>
+                        <a href="#delete">Delete List</a>
+                        <a href="#copy">Copy List</a>
+                        <a href="#move">Move List</a>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="list-content">
-        </div>
-
-        <div class="add-task">
-            <button class="show-add-form">&#65291; Add Task</button>
-            <div class="add-task-form hidden">
-                <input type="text" class="title" placeholder="Enter Task Title">
-                <div class="button-group">
-                    <button class="add-task-button">Add Task</button>
-                    <button class="cancel-button">Cancel</button>
-                </div>
+    
+            <div class="list-content">
             </div>
-        </div>` ;
-    newList.classList.add('list');
+    
+            <div class="add-task">
+                <button class="show-add-form">&#65291; Add Task</button>
+                <div class="add-task-form hidden">
+                    <input type="text" class="title" placeholder="Enter Task Title">
+                    <div class="button-group">
+                        <button class="add-task-button">Add Task</button>
+                        <button class="cancel-button">Cancel</button>
+                    </div>
+                </div>
+            </div>`;
+        newList.classList.add('list');
 
-    const addListContainer = document.querySelector('.add-list');
-    const parentContainer = addListContainer.parentNode;
+        const addListContainer = document.querySelector('.add-list');
+        const parentContainer = addListContainer.parentNode;
 
-    parentContainer.insertBefore(newList, addListContainer);
+        parentContainer.insertBefore(newList, addListContainer);
 
-    resetForm(addListForm, showButton);
+        resetForm(addListForm, showButton);
 
-    // Initialize the dropdown functionality
-    initializeDropdown(newList);
-});
+        // Initialize the dropdown functionality
+        initializeListDropdown(newList);
+    });
+}
 
 // Function to initialize dropdown functionality
-function initializeDropdown(listElement) {
-    const dropdownButton = listElement.querySelector('.list-actions');
-    const dropdownContent = listElement.querySelector('.dropdown-content');
+function initializeListDropdown(listElement) {
+    const listDropdownButton = listElement.querySelector('.list-actions');
+    const listDropdownContent = listElement.querySelector('.dropdown-content');
 
-    // Event Listener to open the dropdown
-    dropdownButton.addEventListener('click', () => {
-        dropdownContent.classList.toggle('visible');
+    // Event Listener to open the list dropdown
+    listDropdownButton.addEventListener('click', () => {
+        listDropdownContent.classList.toggle('visible');
     });
 
-    // Event Listener to close the dropdown
+    // Event Listener to close the list dropdown
     document.addEventListener('click', event => {
-        if (!dropdownButton.contains(event.target)) {
-            dropdownContent.classList.remove('visible');
+        if (!listDropdownButton.contains(event.target)) {
+            listDropdownContent.classList.remove('visible');
         }
     });
 
-    const options = dropdownContent.querySelectorAll('a[href^="#"]');
+    const options = listDropdownContent.querySelectorAll('a[href^="#"]');
     options.forEach(option => {
         option.addEventListener('click', event => {
             event.preventDefault(); // Prevent the default behavior of the anchor tag
             const list = listElement;
             const optionValue = option.getAttribute('href');
-
             if (optionValue === '#rename') {
                 // console.log("rename");
                 renameElement(list);
@@ -196,11 +206,11 @@ function initializeDropdown(listElement) {
                 moveElement(list);
             }
 
-            dropdownContent.classList.remove('visible');
+            listDropdownContent.classList.remove('visible');
         });
     });
 
-    adjustDropdownPosition(dropdownContent)
+    adjustDropdownPosition(listDropdownContent)
 }
 
 // Helper function to rename an element.
@@ -243,7 +253,7 @@ function copyElement(targetElement) {
     parentContainer.insertBefore(newList, nextSibling);
 
     // Initialize dropdown functionality for the copied list
-    initializeDropdown(newList);
+    initializeListDropdown(newList);
 }
 
 // Helper function to move an element.

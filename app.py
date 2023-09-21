@@ -49,5 +49,14 @@ def workspace():
     boards = Board.query.all()
     return render_template('workspace.html', boards=boards)
 
+@app.route('/board/<int:board_id>')
+def board(board_id):
+    board = Board.query.get(board_id)
+    if board:
+        return render_template('board.html', board=board)
+    else:
+        # Handle the case where the board doesn't exist (optional)
+        return "Board not found", 404
+
 if __name__ == "__main__":
     app.run(debug=True)
