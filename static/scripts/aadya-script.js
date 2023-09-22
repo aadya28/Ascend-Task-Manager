@@ -20,6 +20,68 @@ if (boardDropdown) {
     });
 }
 
+document.addEventListener('click', event => {
+    if (event.target.classList.contains('delete-board')) {
+        event.preventDefault(); // Prevent the default behavior of the anchor tag
+
+        const deleteLink = event.target;
+        const boardId = deleteLink.dataset.boardId;
+
+        // Make an AJAX request to delete the board
+        fetch(`/delete_board/${boardId}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Board deleted successfully, redirect to the workspace page
+                    window.location.href = '/'; // Redirect to the workspace page
+                } else {
+                    // Handle the case where the delete request fails
+                    console.error('Failed to delete the board.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+});
+
+// Event listener for renaming a board
+document.addEventListener('click', event => {
+    if (event.target.classList.contains('rename-board')) {
+        event.preventDefault(); // Prevent the default behavior of the anchor tag
+
+        const renameLink = event.target;
+        const boardId = renameLink.dataset.boardId;
+        const boardName = renameLink.dataset.boardName;
+
+        const newBoardName = prompt('Enter a new board name:', boardName);
+
+        if (newBoardName !== null && newBoardName !== "") {
+            // Make an AJAX request to update the board name
+            fetch(`/rename_board/${boardId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ newBoardName }),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Board renamed successfully, reload the board page to reflect the changes
+                        window.location.reload();
+                    } else {
+                        // Handle the case where the rename request fails
+                        console.error('Failed to rename the board.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    }
+});
+
 // Function to adjust the position of the dropdown content
 function adjustDropdownPosition(content) {
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth;

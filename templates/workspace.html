@@ -65,4 +65,13 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        // To reload the page when navigating back to it
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
 {% endblock %}

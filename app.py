@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, redirect, url_for
+from flask import jsonify
 
 app = Flask(__name__, template_folder='templates')
 
@@ -56,6 +57,29 @@ def board(board_id):
         return render_template('board.html', board=board, boards=boards)
     else:
         return "Board not found", 404
+
+@app.route('/delete_board/<int:board_id>', methods=['POST'])
+def delete_board(board_id):
+    board = Board.query.get(board_id)
+    if board:
+        db.session.delete(board)
+        db.session.commit()
+        return jsonify({'message': 'Board deleted successfully'}), 200
+    else:
+        return jsonify({'message': 'Board not found'}), 404
+
+@app.route('/rename_board/<int:board_id>', methods=['POST'])
+def rename_board(board_id):
+    if request.method == 'POST':
+        new_board_name = request.json.get('newBoardName')
+
+        board = Board.query.get(board_id)
+        if board:
+            board.name = new_board_name
+            db.session.commit()
+            return jsonify({'message': 'Board renamed successfully'}), 200
+        else:
+            return jsonify({'message': 'Board not found'}), 404
 
 if __name__ == "__main__":
     app.run(debug=True)

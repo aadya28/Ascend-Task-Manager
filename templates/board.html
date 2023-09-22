@@ -12,8 +12,11 @@
             <div class="dropdown">
                 <button class="board-actions">&#8801;</button>
                 <div class="dropdown-content">
-                    <a href="#">Rename Board</a>
-                    <a href="#">Delete Board</a>
+                    <a href="#" class="rename-board"
+                       data-board-id="{{ board.id }}"
+                       data-board-name="{{ board.name }}">Rename Board</a>
+                    <a href="#" class="delete-board"
+                       data-board-id="{{ board.id }}">Delete Board</a>
                 </div>
             </div>
         </div>
