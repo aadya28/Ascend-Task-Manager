@@ -1,20 +1,19 @@
-// Select the options dropdown and its elements
+// To Select the options dropdown and its elements
 const boardDropdown = document.querySelector('.options-section');
 if (boardDropdown) {
     const boardDropdownButton = boardDropdown.querySelector('.board-actions');
     const boardDropdownContent = boardDropdown.querySelector('.dropdown-content');
 
-// Add a click event listener for showing the board dropdown.
+// A click event listener for showing the board dropdown.
     boardDropdownButton.addEventListener('click', () => {
         // console.log("board dropdown clicked");
         boardDropdownContent.classList.toggle('visible');
         adjustDropdownPosition(boardDropdownContent);
     });
 
-// Add a global click event listener to close the board dropdown when clicking outside of it
+// A global click event listener to close the board dropdown when clicking outside of it
     document.addEventListener('click', event => {
         if (!boardDropdown.contains(event.target)) {
-            // Remove the 'visible' class to hide the dropdown content
             boardDropdownContent.classList.remove('visible');
         }
     });
@@ -22,21 +21,21 @@ if (boardDropdown) {
 
 document.addEventListener('click', event => {
     if (event.target.classList.contains('delete-board')) {
-        event.preventDefault(); // Prevent the default behavior of the anchor tag
+        event.preventDefault();
 
         const deleteLink = event.target;
         const boardId = deleteLink.dataset.boardId;
 
-        // Make an AJAX request to delete the board
+        // Making an AJAX request to delete the board
         fetch(`/delete_board/${boardId}`, {
             method: 'POST',
         })
             .then(response => {
                 if (response.ok) {
-                    // Board deleted successfully, redirect to the workspace page
-                    window.location.href = '/'; // Redirect to the workspace page
+                    // Board deleted successfully, redirecting to the workspace page
+                    window.location.href = '/';
                 } else {
-                    // Handle the case where the delete request fails
+                    // To handle the case where the delete request fails
                     console.error('Failed to delete the board.');
                 }
             })
@@ -46,39 +45,62 @@ document.addEventListener('click', event => {
     }
 });
 
-// Event listener for renaming a board
 document.addEventListener('click', event => {
     if (event.target.classList.contains('rename-board')) {
-        event.preventDefault(); // Prevent the default behavior of the anchor tag
+        event.preventDefault();
 
         const renameLink = event.target;
         const boardId = renameLink.dataset.boardId;
-        const boardName = renameLink.dataset.boardName;
 
-        const newBoardName = prompt('Enter a new board name:', boardName);
+        // Finding the board title element
+        const boardTitle = document.getElementById(`board-title-${boardId}`);
 
-        if (newBoardName !== null && newBoardName !== "") {
-            // Make an AJAX request to update the board name
-            fetch(`/rename_board/${boardId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ newBoardName }),
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Board renamed successfully, reload the board page to reflect the changes
-                        window.location.reload();
-                    } else {
-                        // Handle the case where the rename request fails
-                        console.error('Failed to rename the board.');
-                    }
+        // Creating an input field
+        const inputField = document.createElement('input');
+        inputField.type = 'text';
+        inputField.value = boardTitle.textContent;
+
+        // Styling the input field
+        inputField.style.width = '10vw';
+        inputField.style.padding = '5px';
+        inputField.style.fontSize = '2.5vh'
+
+        // Replacing the board title with the input field
+        boardTitle.textContent = '';
+        boardTitle.appendChild(inputField);
+
+        // Adding event listener to the input field to handle renaming
+        inputField.addEventListener('blur', () => {
+            const newBoardName = inputField.value.trim();
+            if (newBoardName !== '') {
+                // Making an AJAX request to update the board name
+                fetch(`/rename_board/${boardId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ newBoardName }),
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
+                    .then(response => {
+                        if (response.ok) {
+                            // Board renamed successfully, updating the displayed name
+                            boardTitle.textContent = newBoardName;
+                            window.location.reload();
+                        } else {
+                            // To handle the case where the rename request fails
+                            console.error('Failed to rename the board.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            } else {
+                // To restore the original board name if the input is empty
+                boardTitle.textContent = renameLink.dataset.boardName;
+            }
+        });
+
+        inputField.focus();
     }
 });
 
