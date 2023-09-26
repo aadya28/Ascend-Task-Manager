@@ -9,7 +9,37 @@
         </div>
 
         <div class="create-new-board">
-            <a href="/board">Create New Board</a>
+            <button class="show-add-form">Create new Board</button>
+
+            <div class="add-board-form hidden">
+                <form method="POST" action="/create_board" id="board-title-form">
+                    <h3>Board Title</h3>
+                    <input type="text" class="title" name="board_title" placeholder="Enter Board Title" required>
+
+                    <h3>Background</h3>
+                    <div class="wallpaper-options">
+                        <button class="wallpaper-button" type="button" value="Wallpaper_1.jpg">
+                            <img src="{{url_for('static', filename='assets/images/Wallpaper_1.jpg')}}" alt="Wallpaper 1">
+                        </button>
+                        <button class="wallpaper-button" type="button" value="Wallpaper_2.jpg">
+                            <img src="{{url_for('static', filename='assets/images/Wallpaper_2.jpg')}}" alt="Wallpaper 2">
+                        </button>
+                        <button class="wallpaper-button" type="button" value="Wallpaper_3.jpg">
+                            <img src="{{url_for('static', filename='assets/images/Wallpaper_3.jpg')}}" alt="Wallpaper 3">
+                        </button>
+                        <button class="wallpaper-button" type="button" value="Wallpaper_4.jpg">
+                            <img src="{{url_for('static', filename='assets/images/Wallpaper_4.jpg')}}" alt="Wallpaper 4">
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="selected-wallpaper" name="selected_wallpaper" value="">
+
+                    <div class="button-group">
+                        <button class="add-board-button" type="submit">Create</button>
+                        <button class="cancel-button" id="cancel-board-button" type="reset">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div class="workspace-header">
@@ -17,14 +47,31 @@
         </div>
 
         <div class="board-list">
+            {% if boards %}
+            {% for board in boards %}
+            <a href="{{ url_for('board', board_id=board.id) }}" class="board-link">
             <div class="board">
-                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper 1.jpg')}}" alt="Board 1">
-                <h3>Board 1</h3>
+                {% if board.wallpaper %}
+                <img class="board-image" src="{{url_for('static', filename='assets/images/' + board.wallpaper)}}" alt="{{ board.name }}">
+                {% else %}
+                <div class="no-wallpaper"></div>
+                {% endif %}
+                <h3>{{ board.name }}</h3>
             </div>
-            <div class="board">
-                <img class="board-image" src="{{url_for('static', filename='assets/images/Wallpaper 2.jpg')}}" alt="Board 2">
-                <h3>Board 2</h3>
-            </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <p>You don't have any boards yet. Create a new board to get started.</p>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        // To reload the page when navigating back to it
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
 {% endblock %}
