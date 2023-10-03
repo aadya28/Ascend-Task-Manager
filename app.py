@@ -12,11 +12,16 @@ class Boards(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     wallpaper = db.Column(db.String(255), nullable=True)
+    lists = db.relationship('Lists', backref='board', lazy=True)
+
+class Lists(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    list_title = db.Column(db.String(255), nullable=False)
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'), nullable=False)
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    board_name = db.Column(db.String(100), nullable=False)
-    list_name = db.Column(db.String(100), nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
     task_name = db.Column(db.String(100), nullable=False)
 
 # Move the creation of the table into a function
@@ -47,11 +52,20 @@ def workspace():
     boards = Boards.query.all()
     return render_template('workspace.html', boards=boards)
 
-@app.route('/board/<int:board_id>')
+@app.route('/board/<int:board_id>', methods=['GET', 'POST'])
 def board(board_id):
     board = Boards.query.get(board_id)
     boards = Boards.query.all()
     if board:
+        if request.method == 'POST':
+            list_title = request.form.get('list_title')
+
+            if list_title:
+                new_list = Lists(list_title=list_title, board_id=board_id)
+                db.session.add(new_list)
+                db.session.commit()
+                return redirect(url_for('board', board_id=board_id))
+
         return render_template('board.html', board=board, boards=boards)
     else:
         return "Board not found", 404

@@ -241,7 +241,7 @@ if (addListButton) {
             </div>`;
         newList.classList.add('list');
 
-        const addListContainer = document.querySelector('.add-list');
+        const addListContainer = document.querySelector('.create-new-list');
         const parentContainer = addListContainer.parentNode;
 
         parentContainer.insertBefore(newList, addListContainer);
@@ -344,7 +344,7 @@ function copyElement(targetElement) {
 function moveElement(targetElement) {
     const targetIndex = prompt('Enter the position you want to move the element to:');
     if (targetIndex !== null) {
-        const addListContainer = document.querySelector('.add-list');
+        const addListContainer = document.querySelector('.create-new-list');
         const parentContainer = addListContainer.parentNode;
         parentContainer.removeChild(targetElement);
         parentContainer.insertBefore(targetElement, parentContainer.children[targetIndex - 1]);

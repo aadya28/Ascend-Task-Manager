@@ -256,7 +256,7 @@ main{
     background-color: rgba(128, 128, 128, 0.51);
 }
 
-.add-list {
+.create-new-list {
     background-color: rgba(255, 255, 255, 0.4);
     min-width: 24%;
     margin-right: 1vw;
@@ -264,7 +264,7 @@ main{
     border-radius: 1.5vh;
 }
 
-.add-list button {
+.create-new-list button {
     font-size: medium;
     border-radius: 1.5vh;
     padding: 0 1vh 0 1vh;
@@ -275,7 +275,7 @@ main{
     background-color: transparent;
 }
 
-.add-list:hover {
+.create-new-list:hover {
     background-color: rgba(128, 128, 128, 0.51);
 }
 
@@ -396,7 +396,8 @@ main{
     height: auto;
 }
 
-.add-board-form input {
+.add-board-form input,
+.add-list-form input {
     padding: 6px;
     width: 100%;
     box-sizing: border-box;
