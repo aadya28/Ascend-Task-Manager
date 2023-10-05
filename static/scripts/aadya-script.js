@@ -196,62 +196,47 @@ function resetForm(form, showButton) {
     titleInput.value = '';
 }
 
-// Adding a new list
-const addListButton = document.getElementById('add-list-button');
+$(document).ready(function() {
+    // Handle the form submission for creating a new list
+    $('#create-list-form').submit(function(e) {
+        e.preventDefault();
+        var listTitle = $('#list-title-input').val();
 
-if (addListButton) {
-    addListButton.addEventListener('click', () => {
-        // console.log('Add list button clicked');
-
-        const addListForm = addListButton.closest('.add-list-form');
-        const showButton = addListForm.previousElementSibling;
-        const titleInput = addListForm.querySelector('.title');
-        const listTitle = titleInput.value.trim();
-
-        // If the list title is empty, set it to "Untitled"
-        const finalListTitle = listTitle !== '' ? listTitle : 'Untitled';
-
-        const newList = document.createElement('div');
-        newList.innerHTML = `
-            <div class="list-title-bar">
-                <h2 class="title">${finalListTitle}</h2>
-                <div class="dropdown">
-                    <button class="list-actions">&#8226; &#8226; &#8226;</button>
-                    <div class="dropdown-content">
-                        <a href="#rename">Rename List</a>
-                        <a href="#delete">Delete List</a>
-                        <a href="#copy">Copy List</a>
-                        <a href="#move">Move List</a>
-                    </div>
-                </div>
-            </div>
-    
-            <div class="list-content">
-            </div>
-    
-            <div class="add-task">
-                <button class="show-add-form">&#65291; Add Task</button>
-                <div class="add-task-form hidden">
-                    <input type="text" class="title" placeholder="Enter Task Title">
-                    <div class="button-group">
-                        <button class="add-task-button">Add Task</button>
-                        <button class="cancel-button">Cancel</button>
-                    </div>
-                </div>
-            </div>`;
-        newList.classList.add('list');
-
-        const addListContainer = document.querySelector('.create-new-list');
-        const parentContainer = addListContainer.parentNode;
-
-        parentContainer.insertBefore(newList, addListContainer);
-
-        resetForm(addListForm, showButton);
-
-        // Initialize the dropdown functionality
-        initializeListDropdown(newList);
+        // Send an AJAX request to create a new list
+        $.ajax({
+            type: 'POST',
+            url: '/create_list',
+            data: { list_title: listTitle },
+            success: function(response) {
+                // Handle success - add the new list to the page
+                var newListHTML = '<div class="list-title-bar"><h2 class="title">' + listTitle + '</h2></div>';
+                $('.Lists').append(newListHTML);
+                $('#list-title-input').val(''); // Clear the input field
+            },
+            error: function(error) {
+                console.error('Error creating list:', error);
+            }
+        });
     });
-}
+});
+$(document).ready(function() {
+    // Function to toggle the visibility of the dropdown content
+    function toggleDropdown() {
+        // console.log("Toggle Dropdown clicked");
+        $(this).siblings('.dropdown-content').toggleClass('visible');
+    }
+
+    // A click event listener in all elements with class "list-actions"
+    $('.list-actions').click(toggleDropdown);
+
+    // A click event listener in the document to close the dropdown
+    $(document).click(function(event) {
+    if (!$(event.target).closest('.dropdown').length) {
+        // console.log("Document click event");
+        $('.dropdown-content').removeClass('visible');
+    }
+    });
+});
 
 // Function to initialize dropdown functionality
 function initializeListDropdown(listElement) {

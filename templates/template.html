@@ -43,7 +43,7 @@
         <div class="sidebar">
             {% block sidebar %}
             <div class="sidebar-heading">
-                <a href="#">Your Workspace</a>
+                <a href="{{ url_for('workspace') }}">Your Workspace</a>
             </div>
 
             <div class="sidebar-content">
@@ -80,6 +80,7 @@
         </div>
     </main>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{url_for('static', filename='scripts/script.js')}}"></script>
     <script src="{{url_for('static', filename='scripts/aadya-script.js')}}"></script>
 </body>

@@ -47,6 +47,19 @@ def create_board():
             db.session.commit()
     return redirect('/')
 
+@app.route('/create_list', methods=['POST'])
+def create_list():
+    if request.method == 'POST':
+        list_title = request.form.get('list_title')
+
+        if list_title:
+            new_list = Lists(list_title=list_title, board_id=board_id)
+            db.session.add(new_list)
+            db.session.commit()
+            return jsonify({'message': 'List created successfully'}), 200
+        else:
+            return jsonify({'message': 'Invalid list title'}), 400
+
 @app.route('/')
 def workspace():
     boards = Boards.query.all()
@@ -56,6 +69,8 @@ def workspace():
 def board(board_id):
     board = Boards.query.get(board_id)
     boards = Boards.query.all()
+    lists = Lists.query.filter_by(board_id=board_id).all()
+
     if board:
         if request.method == 'POST':
             list_title = request.form.get('list_title')
@@ -66,7 +81,7 @@ def board(board_id):
                 db.session.commit()
                 return redirect(url_for('board', board_id=board_id))
 
-        return render_template('board.html', board=board, boards=boards)
+        return render_template('board.html', board=board, boards=boards, lists=lists)
     else:
         return "Board not found", 404
 
