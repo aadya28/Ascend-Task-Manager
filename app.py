@@ -60,6 +60,26 @@ def create_list():
         else:
             return jsonify({'message': 'Invalid list title'}), 400
 
+@app.route('/delete_list/<int:list_id>', methods=['POST'])
+def delete_list(list_id):
+    print("List ID:", list_id)  # Debugging statement to check the received list ID
+    list_to_delete = Lists.query.get(list_id)
+    if list_to_delete:
+        try:
+            # Delete the associated tasks first (optional)
+            # Task.query.filter_by(list_id=list_id).delete()
+
+            # Delete the list
+            db.session.delete(list_to_delete)
+            db.session.commit()
+            print( 'List deleted successfully')
+            return jsonify({'message': 'List deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting list:", str(e))  # Debugging statement for any exceptions
+            return jsonify({'message': 'Error deleting list'}), 500
+    else:
+        return jsonify({'message': 'List not found'}), 404
+
 @app.route('/')
 def workspace():
     boards = Boards.query.all()
@@ -89,9 +109,17 @@ def board(board_id):
 def delete_board(board_id):
     board = Boards.query.get(board_id)
     if board:
-        db.session.delete(board)
-        db.session.commit()
-        return jsonify({'message': 'Board deleted successfully'}), 200
+        try:
+            # Delete the associated lists first
+            Lists.query.filter_by(board_id=board_id).delete()
+
+            # Then delete the board
+            db.session.delete(board)
+            db.session.commit()
+            return jsonify({'message': 'Board deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting board:", str(e))  # Debugging statement for any exceptions
+            return jsonify({'message': 'Error deleting board'}), 500
     else:
         return jsonify({'message': 'Board not found'}), 404
 

@@ -218,8 +218,7 @@ $(document).ready(function() {
             }
         });
     });
-});
-$(document).ready(function() {
+
     // Function to toggle the visibility of the dropdown content
     function toggleDropdown() {
         // console.log("Toggle Dropdown clicked");
@@ -231,56 +230,39 @@ $(document).ready(function() {
 
     // A click event listener in the document to close the dropdown
     $(document).click(function(event) {
-    if (!$(event.target).closest('.dropdown').length) {
-        // console.log("Document click event");
-        $('.dropdown-content').removeClass('visible');
-    }
+        if (!$(event.target).closest('.dropdown').length) {
+            // console.log("Document click event");
+            $('.dropdown-content').removeClass('visible');
+        }
     });
 });
 
-// Function to initialize dropdown functionality
-function initializeListDropdown(listElement) {
-    const listDropdownButton = listElement.querySelector('.list-actions');
-    const listDropdownContent = listElement.querySelector('.dropdown-content');
+// Function to delete a list
+$(document).ready(function() {
+    // To handle the click event for "Delete List" buttons
+    $('.delete-list').click(function(e) {
+        e.preventDefault(); // Prevent the default link behavior
 
-    // Event Listener to open the list dropdown
-    listDropdownButton.addEventListener('click', () => {
-        listDropdownContent.classList.toggle('visible');
-    });
+        var listId = $(this).data('list-id'); // Get the list ID from the data attribute
 
-    // Event Listener to close the list dropdown
-    document.addEventListener('click', event => {
-        if (!listDropdownButton.contains(event.target)) {
-            listDropdownContent.classList.remove('visible');
-        }
-    });
-
-    const options = listDropdownContent.querySelectorAll('a[href^="#"]');
-    options.forEach(option => {
-        option.addEventListener('click', event => {
-            event.preventDefault(); // Prevent the default behavior of the anchor tag
-            const list = listElement;
-            const optionValue = option.getAttribute('href');
-            if (optionValue === '#rename') {
-                // console.log("rename");
-                renameElement(list);
-            } else if (optionValue === '#delete') {
-                // console.log("delete");
-                deleteElement(list);
-            } else if (optionValue === '#copy') {
-                console.log("copy");
-                copyElement(list);
-            } else if (optionValue === '#move') {
-                console.log("move");
-                moveElement(list);
+        // Send an AJAX request to delete the list
+        $.ajax({
+            type: 'POST',
+            url: '/delete_list/' + listId,
+            success: function(response) {
+                if (response && response.message === 'List deleted successfully') {
+                    // Remove the deleted list from the UI
+                    $(e.target).closest('.list').remove();
+                } else {
+                    console.error('Error deleting list:', response.message);
+                }
+            },
+            error: function(error) {
+                console.error('Error deleting list:', error);
             }
-
-            listDropdownContent.classList.remove('visible');
         });
     });
-
-    adjustDropdownPosition(listDropdownContent)
-}
+});
 
 // Helper function to rename an element.
 function renameElement(targetElement) {
@@ -307,11 +289,6 @@ function renameElement(targetElement) {
     });
 
     inputBox.focus();
-}
-
-// Helper function to delete an element.
-function deleteElement(targetElement) {
-    targetElement.remove();
 }
 
 // Helper function to copy an element.
