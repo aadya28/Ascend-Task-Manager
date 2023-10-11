@@ -60,9 +60,11 @@
                     {% block sidebar_boards %}
                         {% if boards %}
                             {% for board in boards %}
+                            <a href="{{ url_for('board', board_id=board.id) }}">
                             <div class="link">
-                                <a href="{{ url_for('board', board_id=board.id) }}">{{ board.name }}</a>
+                                {{ board.name }}
                             </div>
+                            </a>
                             {% endfor %}
                         {% else %}
                             <p>No boards available.</p>

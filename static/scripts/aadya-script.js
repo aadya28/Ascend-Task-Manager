@@ -277,8 +277,46 @@ $(document).ready(function() {
         $(this).siblings('.dropdown-content').toggleClass('visible');
     }
 
-    // A click event listener in all elements with class "list-actions"
-    $('.list-actions').click(toggleDropdown);
+    // Use event delegation for "Toggle Dropdown" and "Delete List" buttons
+    $('.Lists').on('click', '.list-actions', toggleDropdown);
+
+    $('.Lists').on('click', '.delete-list', function(e) {
+        e.preventDefault();
+        var listId = $(this).data('list-id');
+        var listElement = $(this).closest('.list');
+        deleteList(listId, listElement);
+    });
+
+    // Use event delegation for "Copy List" button
+    $('.Lists').on('click', '.copy-list', function(e) {
+        e.preventDefault();
+        var listId = $(this).data('list-id');
+        var listElement = $(this).closest('.list');
+        copyList(listId, listElement);
+    });
+
+    // Use event delegation for "Rename List" link
+    $('.Lists').on('click', '.rename-list', function () {
+        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
+        var currentTitle = listTitleElement.text();
+
+        // Create the input field with the value
+        var inputField = $("<input type='text' class='edit-list-title'>");
+        inputField.val(currentTitle);
+
+        // Replace the title with the input field
+        listTitleElement.html(inputField);
+
+        // Focus on the input field
+        inputField.focus();
+
+        // Set the cursor position to the end of the input field
+        var inputLength = inputField.val().length;
+        inputField[0].setSelectionRange(inputLength, inputLength);
+
+        // Close the dropdown menu
+        $('.dropdown-content').removeClass('visible');
+    });
 
     // A click event listener in the document to close the dropdown
     $(document).click(function(event) {
@@ -308,62 +346,55 @@ $(document).ready(function() {
         });
     }
 
-    // Handle click events for "Delete List" buttons
-    $('.delete-list').click(function(e) {
-        e.preventDefault(); // Prevent the default link behavior
-
-        var listId = $(this).data('list-id'); // Get the list ID from the data attribute
-        var listElement = $(this).closest('.list'); // Get the list element
-
-        deleteList(listId, listElement);
-    });
-
-    // Handler for clicking the "Rename List" link
-    $(".rename-list").on("click", function () {
-        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
-        var currentTitle = listTitleElement.text();
-
-        // Create the input field with the value
-        var inputField = $("<input type='text' class='edit-list-title'>");
-        inputField.val(currentTitle);
-
-        // Replace the title with the input field
-        listTitleElement.html(inputField);
-
-        // Focus on the input field
-        inputField.focus();
-
-        // Set the cursor position to the end of the input field
-        var inputLength = inputField.val().length;
-        inputField[0].setSelectionRange(inputLength, inputLength);
-
-        // Close the dropdown menu
-        $('.dropdown-content').removeClass('visible');
-    });
-
     // Handler for saving the new list title
     $(document).on("blur", ".edit-list-title", function () {
-    var listId = $(this).closest(".list").find(".rename-list").data("list-id");
-    var newTitle = $(this).val();
-    var listTitleElement = $(this).closest(".list-title-bar").find(".title");
+        var listId = $(this).closest(".list").find(".rename-list").data("list-id");
+        var newTitle = $(this).val();
+        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
 
-    // Send an AJAX request to update the list title
-    $.ajax({
-        type: "POST",
-        url: "/rename_list/" + listId,
-        data: JSON.stringify({ "newListTitle": newTitle }),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-        // Update the displayed list title
-        listTitleElement.text(newTitle);
-        },
-        error: function (error) {
-        // Handle the error if necessary
-        console.error("Error renaming list: " + error.responseText);
-        }
+        // Send an AJAX request to update the list title
+        $.ajax({
+            type: "POST",
+            url: "/rename_list/" + listId,
+            data: JSON.stringify({"newListTitle": newTitle}),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                // Update the displayed list title
+                listTitleElement.text(newTitle);
+            },
+            error: function (error) {
+                // Handle the error if necessary
+                console.error("Error renaming list: " + error.responseText);
+            }
+        });
     });
-});
+
+    // Function to copy a list
+    function copyList(listId, listElement) {
+        // Close all dropdowns before copying the list
+        $('.dropdown-content').removeClass('visible');
+
+        // Send an AJAX request to copy the list
+        $.ajax({
+            type: 'POST',
+            url: '/copy_list/' + listId,
+            success: function(response) {
+                if (response && response.message === 'List copied successfully') {
+                    // Create a new list element with the copied data
+                    var copiedListHTML = listElement.clone();
+                    copiedListHTML.find('.list-actions').remove(); // Remove actions dropdown button
+                    listElement.after(copiedListHTML);
+                    window.location.reload();
+                } else {
+                    console.error('Error copying list:', response.message);
+                }
+            },
+            error: function(error) {
+                console.error('Error copying list:', error);
+            }
+        });
+    }
 
     // Handler for pressing Enter key to save the new list title
     $(document).on("keypress", ".edit-list-title", function (event) {

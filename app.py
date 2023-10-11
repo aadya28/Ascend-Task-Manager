@@ -154,5 +154,22 @@ def rename_list(list_id):
         else:
             return jsonify({'message': 'Invalid list title'}), 400
 
+@app.route('/copy_list/<int:list_id>', methods=['POST'])
+def copy_list(list_id):
+    if request.method == 'POST':
+        list_to_copy = Lists.query.get(list_id)
+
+        if list_to_copy:
+            try:
+                new_list = Lists(list_title=list_to_copy.list_title, board_id=list_to_copy.board_id)
+                db.session.add(new_list)
+                db.session.commit()
+                return jsonify({'message': 'List copied successfully'}), 200
+            except Exception as e:
+                print("Error copying list:", str(e))
+                return jsonify({'message': 'Error copying list'}), 500
+        else:
+            return jsonify({'message': 'List not found'}), 404
+
 if __name__ == "__main__":
     app.run(debug=True)
