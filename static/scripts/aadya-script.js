@@ -96,89 +96,27 @@ const boardDropdown = document.querySelector('.options-section');
 if (boardDropdown) {
     const boardDropdownButton = boardDropdown.querySelector('.board-actions');
     const boardDropdownContent = boardDropdown.querySelector('.dropdown-content');
+    const renameBoardOption = boardDropdownContent.querySelector('.rename-board');
+    const deleteBoardOption = boardDropdownContent.querySelector('.delete-board');
 
-// A click event listener for showing the board dropdown.
-    boardDropdownButton.addEventListener('click', () => {
-        // console.log("board dropdown clicked");
+    // A click event listener for showing the board dropdown.
+    boardDropdownButton.addEventListener('click', (event) => {
+        event.stopPropagation(); // Prevent the click from propagating to the document click event.
         boardDropdownContent.classList.toggle('visible');
         adjustDropdownPosition(boardDropdownContent);
     });
 
-// A global click event listener to close the board dropdown when clicking outside of it
-    document.addEventListener('click', event => {
+    // A global click event listener to close the board dropdown when clicking outside of it
+    document.addEventListener('click', (event) => {
         if (!boardDropdown.contains(event.target)) {
             boardDropdownContent.classList.remove('visible');
         }
     });
-}
 
-// Function to adjust the position of the dropdown content
-function adjustDropdownPosition(content) {
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const dropdownWidth = content.offsetWidth;
-    const buttonRect = content.previousElementSibling.getBoundingClientRect();
-
-    // To Check if dropdown content is extending beyond the right edge
-    if (buttonRect.right + dropdownWidth > viewportWidth) {
-        content.style.right = '0';
-        content.style.left = 'auto';
-    } else {
-        content.style.right = 'auto';
-        content.style.left = '0';
-    }
-}
-
-// To delete a board
-document.addEventListener("DOMContentLoaded", function () {
-    // Get references to HTML elements
-    const deleteBoardButton = document.querySelector(".delete-board");
-    const confirmationPopup = document.getElementById("confirmation-popup");
-    const confirmDeleteButton = document.getElementById("confirm-delete");
-    const cancelDeleteButton = document.getElementById("cancel-delete");
-
-    // Show the confirmation popup when the delete button is clicked
-    deleteBoardButton.addEventListener("click", function (e) {
-        e.preventDefault(); // Prevent the default action (e.g., following the href)
-
-        confirmationPopup.style.display = "block";
-    });
-
-    // Hide the confirmation popup when the cancel button is clicked
-    cancelDeleteButton.addEventListener("click", function () {
-        confirmationPopup.style.display = "none";
-    });
-
-    // Handle the board deletion when the user confirms
-    confirmDeleteButton.addEventListener("click", function () {
-        // Perform the actual deletion here by sending a request to the server
-        const boardId = deleteBoardButton.dataset.boardId;/* Obtain the board ID you want to delete */;
-        fetch(`/delete_board/${boardId}`, {
-            method: "POST",
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    // Board deletion was successful
-                    console.log("Board deleted successfully.");
-                    window.location.href = "/";
-                    // You can redirect the user or update the UI as needed here
-                } else {
-                    // Error handling in case the server returns an error
-                    console.error("Error deleting board.");
-                }
-            })
-            .catch((error) => {
-                // Handle network errors, if any
-                console.error("Network error:", error);
-            });
-
-        // Hide the confirmation popup
-        confirmationPopup.style.display = "none";
-    });
-});
-
-document.addEventListener('click', event => {
-    if (event.target.classList.contains('rename-board')) {
-        event.preventDefault();
+    // To handle the "Rename Board"
+    renameBoardOption.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent the link from navigating
+        boardDropdownContent.classList.remove('visible');
 
         const renameLink = event.target;
         const boardId = renameLink.dataset.boardId;
@@ -200,10 +138,22 @@ document.addEventListener('click', event => {
         boardTitle.textContent = '';
         boardTitle.appendChild(inputField);
 
-        // Adding event listener to the input field to handle renaming
         inputField.addEventListener('blur', () => {
+            renameBoard(inputField);
+        });
+
+        inputField.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                renameBoard(inputField);
+            }
+        });
+
+        function renameBoard(inputField) {
             const newBoardName = inputField.value.trim();
             if (newBoardName !== '') {
+                const boardId = renameBoardOption.dataset.boardId;
+
                 // Making an AJAX request to update the board name
                 fetch(`/rename_board/${boardId}`, {
                     method: 'POST',
@@ -212,7 +162,7 @@ document.addEventListener('click', event => {
                     },
                     body: JSON.stringify({ newBoardName }),
                 })
-                    .then(response => {
+                    .then((response) => {
                         if (response.ok) {
                             // Board renamed successfully, updating the displayed name
                             boardTitle.textContent = newBoardName;
@@ -222,18 +172,81 @@ document.addEventListener('click', event => {
                             console.error('Failed to rename the board.');
                         }
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         console.error('Error:', error);
                     });
             } else {
                 // To restore the original board name if the input is empty
                 boardTitle.textContent = renameLink.dataset.boardName;
             }
-        });
+        }
 
         inputField.focus();
+    });
+
+    // To delete a board
+    deleteBoardOption.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent the link from navigating
+        boardDropdownContent.classList.remove('visible');
+        console.log("reached");
+
+        // Get references to HTML elements
+        const confirmationPopup = document.getElementById("confirmation-popup");
+        const confirmDeleteButton = document.getElementById("confirm-delete");
+        const cancelDeleteButton = document.getElementById("cancel-delete");
+
+        // Display the popup
+        confirmationPopup.style.display = "block";
+
+        // Hide the confirmation popup when the cancel button is clicked
+        cancelDeleteButton.addEventListener("click", function () {
+            confirmationPopup.style.display = "none";
+        });
+
+        // Handle the board deletion when the user confirms
+        confirmDeleteButton.addEventListener("click", function () {
+            // Perform the actual deletion here by sending a request to the server
+            const boardId = deleteBoardOption.dataset.boardId;
+            fetch(`/delete_board/${boardId}`, {
+                method: "POST",
+            })
+                .then((response) => {
+                    if (response.status === 200) {
+                        // Board deletion was successful
+                        console.log("Board deleted successfully.");
+                        window.location.href = "/";
+                        // You can redirect the user or update the UI as needed here
+                    } else {
+                        // Error handling in case the server returns an error
+                        console.error("Error deleting board.");
+                    }
+                })
+                .catch((error) => {
+                    // Handle network errors, if any
+                    console.error("Network error:", error);
+                });
+
+            // Hide the confirmation popup
+            confirmationPopup.style.display = "none";
+        });
+    });
+}
+
+// Function to adjust the position of the dropdown content
+function adjustDropdownPosition(content) {
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    const dropdownWidth = content.offsetWidth;
+    const buttonRect = content.previousElementSibling.getBoundingClientRect();
+
+    // To Check if dropdown content is extending beyond the right edge
+    if (buttonRect.right + dropdownWidth > viewportWidth) {
+        content.style.right = '0';
+        content.style.left = 'auto';
+    } else {
+        content.style.right = 'auto';
+        content.style.left = '0';
     }
-});
+}
 
 $(document).ready(function() {
     // Handle the form submission for creating a new list
@@ -379,26 +392,27 @@ document.addEventListener('click', event=>{
     }
 })
 
-// Helper function to add a new task.
-function addNewTask(tasksContainer, taskTitle) {
-    const newTask = createNewTask(taskTitle);
-    tasksContainer.appendChild(newTask);
-}
-
-// Helper function to create a new task
-function createNewTask(taskTitle) {
-    const newTask = document.createElement('div');
-    newTask.classList.add('task');
-
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    newTask.appendChild(checkbox);
-
-    newTask.appendChild(document.createTextNode(' '));
-
-    const taskLabel = document.createElement('label');
-    taskLabel.textContent = taskTitle;
-    newTask.appendChild(taskLabel);
-
-    return newTask;
-}
+//
+// // Helper function to add a new task.
+// function addNewTask(tasksContainer, taskTitle) {
+//     const newTask = createNewTask(taskTitle);
+//     tasksContainer.appendChild(newTask);
+// }
+//
+// // Helper function to create a new task
+// function createNewTask(taskTitle) {
+//     const newTask = document.createElement('div');
+//     newTask.classList.add('task');
+//
+//     const checkbox = document.createElement('input');
+//     checkbox.type = 'checkbox';
+//     newTask.appendChild(checkbox);
+//
+//     newTask.appendChild(document.createTextNode(' '));
+//
+//     const taskLabel = document.createElement('label');
+//     taskLabel.textContent = taskTitle;
+//     newTask.appendChild(taskLabel);
+//
+//     return newTask;
+// }
