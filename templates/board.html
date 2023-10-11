@@ -32,8 +32,10 @@
                 <div class="dropdown">
                     <button class="list-actions">&#8226; &#8226; &#8226;</button>
                     <div class="dropdown-content">
-                        <a href="#rename">Rename List</a>
-                        <a href="#" class="delete-list" data-list-id="{{ list.id }}">Delete List</a>
+                        <a href="#rename" class="rename-list"
+                           data-list-id="{{ list.id }}"
+                           data-list-title="{{ list.list_title }}">Rename List</a>
+                        <a href="#delete" class="delete-list" data-list-id="{{ list.id }}">Delete List</a>
                         <a href="#copy">Copy List</a>
                         <a href="#move">Move List</a>
                     </div>
@@ -68,6 +70,17 @@
                         <button class="cancel-button" id="cancel-list-button" type="reset">Cancel</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmation-popup" class="popup">
+        <div class="popup-content">
+            <h3>Delete Board?</h3>
+            <p>This will delete <span class="board-name-highlight">{{ board.name }}</span></p>
+            <div class="button-group">
+                <button id="cancel-delete">Cancel</button>
+                <button id="confirm-delete">Confirm</button>
             </div>
         </div>
     </div>

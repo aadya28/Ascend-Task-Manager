@@ -32,6 +32,11 @@ def create_tables():
 # Initialize the app context by creating the tables
 create_tables()
 
+@app.route('/')
+def workspace():
+    boards = Boards.query.all()
+    return render_template('workspace.html', boards=boards)
+
 @app.route('/create_board', methods=['POST'])
 def create_board():
     if request.method == 'POST':
@@ -46,44 +51,6 @@ def create_board():
             db.session.add(new_board)
             db.session.commit()
     return redirect('/')
-
-@app.route('/create_list', methods=['POST'])
-def create_list():
-    if request.method == 'POST':
-        list_title = request.form.get('list_title')
-
-        if list_title:
-            new_list = Lists(list_title=list_title, board_id=board_id)
-            db.session.add(new_list)
-            db.session.commit()
-            return jsonify({'message': 'List created successfully'}), 200
-        else:
-            return jsonify({'message': 'Invalid list title'}), 400
-
-@app.route('/delete_list/<int:list_id>', methods=['POST'])
-def delete_list(list_id):
-    print("List ID:", list_id)  # Debugging statement to check the received list ID
-    list_to_delete = Lists.query.get(list_id)
-    if list_to_delete:
-        try:
-            # Delete the associated tasks first (optional)
-            # Task.query.filter_by(list_id=list_id).delete()
-
-            # Delete the list
-            db.session.delete(list_to_delete)
-            db.session.commit()
-            print( 'List deleted successfully')
-            return jsonify({'message': 'List deleted successfully'}), 200
-        except Exception as e:
-            print("Error deleting list:", str(e))  # Debugging statement for any exceptions
-            return jsonify({'message': 'Error deleting list'}), 500
-    else:
-        return jsonify({'message': 'List not found'}), 404
-
-@app.route('/')
-def workspace():
-    boards = Boards.query.all()
-    return render_template('workspace.html', boards=boards)
 
 @app.route('/board/<int:board_id>', methods=['GET', 'POST'])
 def board(board_id):
@@ -135,6 +102,57 @@ def rename_board(board_id):
             return jsonify({'message': 'Board renamed successfully'}), 200
         else:
             return jsonify({'message': 'Board not found'}), 404
+
+@app.route('/create_list', methods=['POST'])
+def create_list():
+    if request.method == 'POST':
+        list_title = request.form.get('list_title')
+
+        if list_title:
+            new_list = Lists(list_title=list_title, board_id=board_id)
+            db.session.add(new_list)
+            db.session.commit()
+            return jsonify({'message': 'List created successfully'}), 200
+        else:
+            return jsonify({'message': 'Invalid list title'}), 400
+
+@app.route('/delete_list/<int:list_id>', methods=['POST'])
+def delete_list(list_id):
+    print("List ID:", list_id)  # Debugging statement to check the received list ID
+    list_to_delete = Lists.query.get(list_id)
+    if list_to_delete:
+        try:
+            # Delete the associated tasks first (optional)
+            # Task.query.filter_by(list_id=list_id).delete()
+
+            # Delete the list
+            db.session.delete(list_to_delete)
+            db.session.commit()
+            print( 'List deleted successfully')
+            return jsonify({'message': 'List deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting list:", str(e))  # Debugging statement for any exceptions
+            return jsonify({'message': 'Error deleting list'}), 500
+    else:
+        return jsonify({'message': 'List not found'}), 404
+
+@app.route('/rename_list/<int:list_id>', methods=['POST'])
+def rename_list(list_id):
+    if request.method == 'POST':
+        new_list_title = request.json.get('newListTitle')
+
+        # Check if the provided list title is not empty
+        if new_list_title:
+            list_to_rename = Lists.query.get(list_id)
+
+            if list_to_rename:
+                list_to_rename.list_title = new_list_title
+                db.session.commit()
+                return jsonify({'message': 'List renamed successfully'}), 200
+            else:
+                return jsonify({'message': 'List not found'}), 404
+        else:
+            return jsonify({'message': 'Invalid list title'}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
