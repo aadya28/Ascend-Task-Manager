@@ -271,14 +271,28 @@ $(document).ready(function() {
         });
     });
 
-    // Function to toggle the visibility of the dropdown content
-    function toggleDropdown() {
-        // console.log("Toggle Dropdown clicked");
-        $(this).siblings('.dropdown-content').toggleClass('visible');
+    // Function to show the list actions dropdown
+    function showListActionsDropdown(listActionsContent) {
+        // console.log("show list actions");
+        listActionsContent.show(); // Show the list actions dropdown
     }
 
-    // Use event delegation for "Toggle Dropdown" and "Delete List" buttons
-    $('.Lists').on('click', '.list-actions', toggleDropdown);
+    // Event listener to show the list actions dropdown
+    $('.Lists').on('click', '.list-actions', function(e) {
+        const listId = $(this).data('list-id');
+        const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
+
+        // console.log('ListActionsContent data-list-id:', listActionsContent.data('list-id'));
+        showListActionsDropdown(listActionsContent);
+    });
+
+    // To hide the dropdowns
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.list-actions, .move-list').length) {
+            // Clicked outside both list actions and move list elements
+            $('.dropdown-content').hide();
+        }
+    });
 
     $('.Lists').on('click', '.delete-list', function(e) {
         e.preventDefault();
@@ -287,13 +301,25 @@ $(document).ready(function() {
         deleteList(listId, listElement);
     });
 
-    // Use event delegation for "Copy List" button
-    $('.Lists').on('click', '.copy-list', function(e) {
-        e.preventDefault();
-        var listId = $(this).data('list-id');
-        var listElement = $(this).closest('.list');
-        copyList(listId, listElement);
-    });
+    // Function to delete a list
+    function deleteList(listId, listElement) {
+        // Send an AJAX request to delete the list
+        $.ajax({
+            type: 'POST',
+            url: '/delete_list/' + listId,
+            success: function(response) {
+                if (response && response.message === 'List deleted successfully') {
+                    // Remove the deleted list element from the UI
+                    listElement.remove();
+                } else {
+                    console.error('Error deleting list:', response.message);
+                }
+            },
+            error: function(error) {
+                console.error('Error deleting list:', error);
+            }
+        });
+    }
 
     // Use event delegation for "Rename List" link
     $('.Lists').on('click', '.rename-list', function () {
@@ -318,34 +344,6 @@ $(document).ready(function() {
         $('.dropdown-content').removeClass('visible');
     });
 
-    // A click event listener in the document to close the dropdown
-    $(document).click(function(event) {
-        if (!$(event.target).closest('.dropdown').length) {
-            // console.log("Document click event");
-            $('.dropdown-content').removeClass('visible');
-        }
-    });
-
-    // Function to delete a list
-    function deleteList(listId, listElement) {
-        // Send an AJAX request to delete the list
-        $.ajax({
-            type: 'POST',
-            url: '/delete_list/' + listId,
-            success: function(response) {
-                if (response && response.message === 'List deleted successfully') {
-                    // Remove the deleted list element from the UI
-                    listElement.remove();
-                } else {
-                    console.error('Error deleting list:', response.message);
-                }
-            },
-            error: function(error) {
-                console.error('Error deleting list:', error);
-            }
-        });
-    }
-
     // Handler for saving the new list title
     $(document).on("blur", ".edit-list-title", function () {
         var listId = $(this).closest(".list").find(".rename-list").data("list-id");
@@ -368,6 +366,14 @@ $(document).ready(function() {
                 console.error("Error renaming list: " + error.responseText);
             }
         });
+    });
+
+    // Use event delegation for "Copy List" button
+    $('.Lists').on('click', '.copy-list', function(e) {
+        e.preventDefault();
+        var listId = $(this).data('list-id');
+        var listElement = $(this).closest('.list');
+        copyList(listId, listElement);
     });
 
     // Function to copy a list
@@ -396,11 +402,37 @@ $(document).ready(function() {
         });
     }
 
-    // Handler for pressing Enter key to save the new list title
-    $(document).on("keypress", ".edit-list-title", function (event) {
-        if (event.keyCode === 13) { // 13 is the Enter key code
-        $(this).blur(); // Trigger the blur event to save the new title
-        }
+    function showMoveListDropdown(listActionsContent, moveListContent) {        // Hide the list actions dropdown
+        // console.log("reached show-move-list-dropdown");
+        listActionsContent.hide(); // Hide the list actions dropdown
+        moveListContent.show();
+    }
+
+    function hideMoveListDropdown(moveListContent) {        // Hide the list actions dropdown
+        // console.log("reached hide-move-list-dropdown");
+        moveListContent.hide();
+    }
+
+    $('.Lists').on('click', '.move-list', function(e) {
+        e.preventDefault();
+        const listId = $(this).data('list-id');
+        // console.log(listId);
+        const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
+        const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
+
+        // console.log('ListActionsContent data-list-id:', listActionsContent.data('list-id'));
+        // console.log('MoveListContent data-list-id:', moveListContent.data('list-id'));
+
+        showMoveListDropdown(listActionsContent, moveListContent);
+    });
+
+    $('.Lists').on('click', '.cancel-move-list', function(e) {
+        e.preventDefault();
+        const listId = $(this).data('list-id');
+        // console.log(listId);
+
+        const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
+        hideMoveListDropdown(moveListContent);
     });
 });
 

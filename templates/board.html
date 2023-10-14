@@ -30,16 +30,43 @@
             <div class="list-title-bar">
                 <h2 class="title">{{ list.list_title }}</h2>
                 <div class="dropdown">
-                    <button class="list-actions">&#8226; &#8226; &#8226;</button>
-                    <div class="dropdown-content">
+                    <button class="list-actions" data-list-id="{{ list.id }}">&#8226; &#8226; &#8226;</button>
+                    <div class="dropdown-content" id="list-actions-content" data-list-id="{{ list.id }}">
                         <a href="#rename" class="rename-list"
                            data-list-id="{{ list.id }}"
                            data-list-title="{{ list.list_title }}">Rename List</a>
+
                         <a href="#delete" class="delete-list"
                            data-list-id="{{ list.id }}">Delete List</a>
+
                         <a href="#copy" class="copy-list"
                            data-list-id="{{ list.id }}">Copy List</a>
-                        <a href="#move">Move List</a>
+
+                        <a href="#move" class="move-list"
+                           data-list-id="{{ list.id }}">Move List</a>
+                    </div>
+
+                    <div class="dropdown-content" id="move-list-content" data-list-id="{{ list.id }}">
+                        <h2 class="move-list-heading">Move List</h2>
+
+                        <label for="move-to-board">Board:</label>
+                        <select id="move-to-board">
+                            {% for board in boards %}
+                            <option>{{ board.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="move-to-position">Position:</label>
+                        <select id="move-to-position">
+                            {% for position in range(1, lists|length + 1) %}
+                            <option>{{ position }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="button-group">
+                            <button class="move-list-button" type="submit" data-list-id="{{ list.id }}">Move List</button>
+                            <button class="cancel-move-list" type="reset" data-list-id="{{ list.id }}">Cancel</button>
+                        </div>
                     </div>
                 </div>
             </div>
