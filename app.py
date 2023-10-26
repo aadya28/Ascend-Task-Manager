@@ -171,5 +171,22 @@ def copy_list(list_id):
         else:
             return jsonify({'message': 'List not found'}), 404
 
+@app.route('/move_list/<int:list_id>', methods=['POST'])
+def move_list(list_id):
+    if request.method == 'POST':
+        new_board_id = request.form.get('new_board_id')
+        new_position = request.form.get('new_position')
+
+        list_to_move = Lists.query.get(list_id)
+
+        if list_to_move:
+            list_to_move.board_id = new_board_id
+            list_to_move.position = new_position
+            db.session.commit()
+
+            return jsonify({'message': 'List moved successfully'}), 200
+        else:
+            return jsonify({'message': 'List not found'}), 404
+
 if __name__ == "__main__":
     app.run(debug=True)

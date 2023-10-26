@@ -78,6 +78,26 @@ wallpaperButtons.forEach(button => {
     });
 });
 
+function adjustDropdown(dropdownContent) {
+    if (dropdownContent) {
+        const content = dropdownContent[0];
+        const dropdownWidth = content.offsetWidth;
+        const windowWidth = window.innerWidth;
+        const buttonRect = content.previousElementSibling.getBoundingClientRect();
+        // Check if the dropdown goes out of the viewport and adjust if needed
+        if (buttonRect.right + dropdownWidth > windowWidth) {
+            content.style.right = '0';
+            content.style.left = 'auto';
+        } else {
+            content.style.right = 'auto';
+            content.style.left = '0';
+        }
+    } else {
+        // The element does not exist
+        console.log("Element not found.");
+    }
+}
+
 // Reset the wallpaper selection when the cancel button is clicked
 cancelBoardButton = document.getElementById('cancel-board-button');
 
@@ -91,162 +111,151 @@ if(cancelBoardButton) {
     });
 }
 
-// To Select the options dropdown and its elements
-const boardDropdown = document.querySelector('.options-section');
-if (boardDropdown) {
-    const boardDropdownButton = boardDropdown.querySelector('.board-actions');
-    const boardDropdownContent = boardDropdown.querySelector('.dropdown-content');
-    const renameBoardOption = boardDropdownContent.querySelector('.rename-board');
-    const deleteBoardOption = boardDropdownContent.querySelector('.delete-board');
+$(document).ready(function () {
+    // To Select the options dropdown and its elements
+    const boardDropdown = document.querySelector('.options-section');
+    if (boardDropdown) {
+        // Function to show the board dropdown
+        function showBoardActionsDropdown(boardId) {
+            // console.log("show board actions");
+            $('.dropdown-content').hide(); // Hide other dropdowns
 
-    // A click event listener for showing the board dropdown.
-    boardDropdownButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // Prevent the click from propagating to the document click event.
-        boardDropdownContent.classList.toggle('visible');
-        adjustDropdownPosition(boardDropdownContent);
-    });
+            const $boardActionsContent = $('#board-actions-content[data-board-id="' + boardId + '"]');
+            console.log('BoardActionsContent data-board-id:', $boardActionsContent);
 
-    // A global click event listener to close the board dropdown when clicking outside of it
-    document.addEventListener('click', (event) => {
-        if (!boardDropdown.contains(event.target)) {
-            boardDropdownContent.classList.remove('visible');
+            $boardActionsContent.show();
+            adjustDropdown($boardActionsContent);
         }
-    });
 
-    // To handle the "Rename Board"
-    renameBoardOption.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent the link from navigating
-        boardDropdownContent.classList.remove('visible');
-
-        const renameLink = event.target;
-        const boardId = renameLink.dataset.boardId;
-
-        // Finding the board title element
-        const boardTitle = document.getElementById(`board-title-${boardId}`);
-
-        // Creating an input field
-        const inputField = document.createElement('input');
-        inputField.type = 'text';
-        inputField.value = boardTitle.textContent;
-
-        // Styling the input field
-        inputField.style.width = '10vw';
-        inputField.style.padding = '5px';
-        inputField.style.fontSize = '2.5vh'
-
-        // Replacing the board title with the input field
-        boardTitle.textContent = '';
-        boardTitle.appendChild(inputField);
-
-        inputField.addEventListener('blur', () => {
-            renameBoard(inputField);
+        // Event listener to show the board actions dropdown
+        $('.board-actions').click(function (e) {
+            e.stopPropagation(); // Prevent the click from propagating to the document click event.
+            const boardId = $(this).data('board-id');
+            showBoardActionsDropdown(boardId);
         });
 
-        inputField.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                renameBoard(inputField);
-            }
-        });
-
-        function renameBoard(inputField) {
-            const newBoardName = inputField.value.trim();
+        // Function to rename the board
+        function renameBoard(inputField, boardId, boardTitle) {
+            const newBoardName = inputField.val().trim();
             if (newBoardName !== '') {
-                const boardId = renameBoardOption.dataset.boardId;
-
                 // Making an AJAX request to update the board name
-                fetch(`/rename_board/${boardId}`, {
+                $.ajax({
+                    url: '/rename_board/' + boardId,
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ newBoardName }),
-                })
-                    .then((response) => {
-                        if (response.ok) {
-                            // Board renamed successfully, updating the displayed name
-                            boardTitle.textContent = newBoardName;
-                            window.location.reload();
+                    contentType: 'application/json',
+                    data: JSON.stringify({ newBoardName }),
+                    success: function (data, textStatus, jqXHR) {
+                        if (jqXHR.status === 200) {
+                            // Board renamed successfully, update the displayed name
+                            boardTitle.text(newBoardName);
+                            location.reload();
                         } else {
-                            // To handle the case where the rename request fails
+                            // Handle the case where the rename request fails
                             console.error('Failed to rename the board.');
                         }
-                    })
-                    .catch((error) => {
-                        console.error('Error:', error);
-                    });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        // Handle network errors, if any
+                        console.error('Network error:', errorThrown);
+                    }
+                });
             } else {
-                // To restore the original board name if the input is empty
-                boardTitle.textContent = renameLink.dataset.boardName;
+                // Restore the original board name if the input is empty
+                boardTitle.text(renameLink.data('board-name'));
             }
+            inputField.remove(); // Remove the input field after editing
         }
 
-        inputField.focus();
-    });
+        // Event listener to rename a board
+        $(document).on('click', '.rename-board', function (e) {
+            e.preventDefault(); // Prevent the link from navigating
+            const renameLink = $(this);
+            const boardId = renameLink.data('board-id');
 
-    // To delete a board
-    deleteBoardOption.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent the link from navigating
-        boardDropdownContent.classList.remove('visible');
-        console.log("reached");
+            // Finding the board title element
+            const boardTitle = $('#board-title-' + boardId);
 
-        // Get references to HTML elements
-        const confirmationPopup = document.getElementById("confirmation-popup");
-        const confirmDeleteButton = document.getElementById("confirm-delete");
-        const cancelDeleteButton = document.getElementById("cancel-delete");
+            // Creating an input field
+            const inputField = $('<input>', {
+                type: 'text',
+                value: boardTitle.text(),
+                style: 'width: 10vw; padding: 5px; font-size: 2.5vh;',
+            });
 
-        // Display the popup
-        confirmationPopup.style.display = "block";
+            // Replace the board title with the input field
+            boardTitle.text('');
+            boardTitle.append(inputField);
 
-        // Hide the confirmation popup when the cancel button is clicked
-        cancelDeleteButton.addEventListener("click", function () {
-            confirmationPopup.style.display = "none";
+            // Move the cursor to the end of the input value
+            inputField.focus();
+            const inputValue = inputField.val();
+            inputField[0].selectionEnd = inputValue.length;
+
+            inputField.on('blur', function () {
+                renameBoard(inputField, boardId, boardTitle);
+            });
+
+            inputField.on('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    renameBoard(inputField, boardId, boardTitle);
+                }
+            });
         });
 
-        // Handle the board deletion when the user confirms
-        confirmDeleteButton.addEventListener("click", function () {
-            // Perform the actual deletion here by sending a request to the server
-            const boardId = deleteBoardOption.dataset.boardId;
-            fetch(`/delete_board/${boardId}`, {
-                method: "POST",
-            })
-                .then((response) => {
-                    if (response.status === 200) {
+        // Function to delete a board
+        function deleteBoard(boardId) {
+            $.ajax({
+                url: '/delete_board/' + boardId,
+                method: 'POST',
+                success: function (data, textStatus, jqXHR) {
+                    if (jqXHR.status === 200) {
                         // Board deletion was successful
-                        console.log("Board deleted successfully.");
-                        window.location.href = "/";
+                        console.log('Board deleted successfully.');
+                        window.location.href = '/';
                         // You can redirect the user or update the UI as needed here
                     } else {
                         // Error handling in case the server returns an error
-                        console.error("Error deleting board.");
+                        console.error('Error deleting board.');
                     }
-                })
-                .catch((error) => {
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
                     // Handle network errors, if any
-                    console.error("Network error:", error);
-                });
+                    console.error('Network error:', errorThrown);
+                }
+            });
+        }
 
-            // Hide the confirmation popup
-            confirmationPopup.style.display = "none";
+        // Event listener to delete a board
+        $(document).on('click', '.delete-board', function (e) {
+            e.preventDefault(); // Prevent the link from navigating
+            const boardId = $(this).data('board-id');
+            const confirmationPopup = $('#confirmation-popup');
+            confirmationPopup.show();
+
+            // Handle the board deletion when the user confirms
+            $('#confirm-delete').click(function () {
+                deleteBoard(boardId);
+
+                // Hide the confirmation popup
+                confirmationPopup.hide();
+            });
+
+            // Hide the confirmation popup when the cancel button is clicked
+            $('#cancel-delete').click(function () {
+                confirmationPopup.hide();
+            });
         });
-    });
-}
 
-// Function to adjust the position of the dropdown content
-function adjustDropdownPosition(content) {
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    const dropdownWidth = content.offsetWidth;
-    const buttonRect = content.previousElementSibling.getBoundingClientRect();
-
-    // To Check if dropdown content is extending beyond the right edge
-    if (buttonRect.right + dropdownWidth > viewportWidth) {
-        content.style.right = '0';
-        content.style.left = 'auto';
-    } else {
-        content.style.right = 'auto';
-        content.style.left = '0';
+        // Global click event listener to close the board dropdown when clicking outside of it
+        $(document).click(function (event) {
+            if (!$(event.target).closest('.board-actions, #board-dropdown-content').length) {
+                // Clicked outside both board actions and board dropdown elements
+                $('#board-dropdown-content').hide();
+            }
+        });
     }
-}
+});
 
 $(document).ready(function() {
     // Handle the form submission for creating a new list
@@ -275,6 +284,7 @@ $(document).ready(function() {
     function showListActionsDropdown(listActionsContent) {
         // console.log("show list actions");
         listActionsContent.show(); // Show the list actions dropdown
+        adjustDropdown(listActionsContent);
     }
 
     // Event listener to show the list actions dropdown
@@ -288,12 +298,76 @@ $(document).ready(function() {
 
     // To hide the dropdowns
     $(document).on('click', function (e) {
-        if (!$(e.target).closest('.list-actions, .move-list').length) {
+        if (!$(e.target).closest('.list-actions, .move-list, #move-list-content').length) {
             // Clicked outside both list actions and move list elements
             $('.dropdown-content').hide();
         }
     });
 
+    // Use event delegation for "Rename List" link
+    $('.Lists').on('click', '.rename-list', function () {
+        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
+        var currentTitle = listTitleElement.text();
+
+        // Create the input field with the value
+        var inputField = $("<input type='text' class='edit-list-title'>");
+        inputField.val(currentTitle);
+
+        // Replace the title with the input field
+        listTitleElement.html(inputField);
+
+        // Focus on the input field
+        inputField.focus();
+
+        // Set the cursor position to the end of the input field
+        var inputLength = inputField.val().length;
+        inputField[0].setSelectionRange(inputLength, inputLength);
+
+        // Close the dropdown menu
+        $('.dropdown-content').removeClass('visible');
+
+        // Handle saving the new title on blur or Enter key press
+        inputField.on("blur keydown", function (event) {
+            var listId = $(this).closest(".list").find(".rename-list").data("list-id");
+
+            if (event.type === "keydown" && event.key === "Enter") {
+                // Prevent line breaks in the input field
+                event.preventDefault();
+                // Trigger the same behavior as when the input field loses focus
+                inputField.blur();
+            } else if (event.type === "blur") {
+                var newTitle = inputField.val();
+                renameList(listId, newTitle);
+            }
+        });
+    });
+
+    // Function to Rename a list
+    function renameList(listId, newTitle) {
+        // Send an AJAX request to update the list title
+        $.ajax({
+            type: "POST",
+            url: "/rename_list/" + listId,
+            data: JSON.stringify({ "newListTitle": newTitle }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response && response.message === "List renamed successfully") {
+                    // Update the displayed list title
+                    var listTitleElement = $('.rename-list[data-list-id="' + listId + '"]').closest(".list-title-bar").find(".title");
+                    listTitleElement.text(newTitle);
+                } else {
+                    console.error("Error renaming list: " + response.message);
+                }
+            },
+            error: function (error) {
+                // Handle the error if necessary
+                console.error("Error renaming list: " + error.responseText);
+            }
+        });
+    }
+
+    // Use event delegation for "Delete List" button
     $('.Lists').on('click', '.delete-list', function(e) {
         e.preventDefault();
         var listId = $(this).data('list-id');
@@ -320,53 +394,6 @@ $(document).ready(function() {
             }
         });
     }
-
-    // Use event delegation for "Rename List" link
-    $('.Lists').on('click', '.rename-list', function () {
-        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
-        var currentTitle = listTitleElement.text();
-
-        // Create the input field with the value
-        var inputField = $("<input type='text' class='edit-list-title'>");
-        inputField.val(currentTitle);
-
-        // Replace the title with the input field
-        listTitleElement.html(inputField);
-
-        // Focus on the input field
-        inputField.focus();
-
-        // Set the cursor position to the end of the input field
-        var inputLength = inputField.val().length;
-        inputField[0].setSelectionRange(inputLength, inputLength);
-
-        // Close the dropdown menu
-        $('.dropdown-content').removeClass('visible');
-    });
-
-    // Handler for saving the new list title
-    $(document).on("blur", ".edit-list-title", function () {
-        var listId = $(this).closest(".list").find(".rename-list").data("list-id");
-        var newTitle = $(this).val();
-        var listTitleElement = $(this).closest(".list-title-bar").find(".title");
-
-        // Send an AJAX request to update the list title
-        $.ajax({
-            type: "POST",
-            url: "/rename_list/" + listId,
-            data: JSON.stringify({"newListTitle": newTitle}),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (response) {
-                // Update the displayed list title
-                listTitleElement.text(newTitle);
-            },
-            error: function (error) {
-                // Handle the error if necessary
-                console.error("Error renaming list: " + error.responseText);
-            }
-        });
-    });
 
     // Use event delegation for "Copy List" button
     $('.Lists').on('click', '.copy-list', function(e) {
@@ -402,17 +429,21 @@ $(document).ready(function() {
         });
     }
 
+    // Function to Show the Move list dropdown
     function showMoveListDropdown(listActionsContent, moveListContent) {        // Hide the list actions dropdown
         // console.log("reached show-move-list-dropdown");
         listActionsContent.hide(); // Hide the list actions dropdown
         moveListContent.show();
+        adjustDropdown(moveListContent);
     }
 
+    // Function to Hide the Move list dropdown
     function hideMoveListDropdown(moveListContent) {        // Hide the list actions dropdown
         // console.log("reached hide-move-list-dropdown");
         moveListContent.hide();
     }
 
+    // Event delegation for "Move List" button
     $('.Lists').on('click', '.move-list', function(e) {
         e.preventDefault();
         const listId = $(this).data('list-id');
@@ -426,56 +457,39 @@ $(document).ready(function() {
         showMoveListDropdown(listActionsContent, moveListContent);
     });
 
+    // Event delegation for "Cancel Move List" button
     $('.Lists').on('click', '.cancel-move-list', function(e) {
         e.preventDefault();
+        console.log("clicked");
         const listId = $(this).data('list-id');
-        // console.log(listId);
-
         const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
         hideMoveListDropdown(moveListContent);
     });
+
+    // // Event delegation for "Move List" form submission
+    // $('.Lists').on('click', '.move-list-button', function(e) {
+    //     e.preventDefault();
+    //     const listId = $(this).data('list-id');
+    //     console.log(listId);
+    //     const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
+    //     console.log(moveListContent);
+    //     const newBoardId = moveListContent.find('#move-to-board').val();
+    //     const newPosition = moveListContent.find('#move-to-position').val();
+    //     console.log(newBoardId, newPosition);
+    //
+    //     // Send the form data to the server using AJAX
+    //     $.ajax({
+    //         type: 'POST',
+    //         url: '/move_list/' + listId,
+    //         data: { new_board_id: newBoardId, new_position: newPosition },
+    //         dataType: 'json',
+    //         success: function(data) {
+    //             console.log(data.message); // Log the server response message
+    //             hideMoveListDropdown(moveListContent); // Hide the move list dropdown
+    //         },
+    //         error: function(error) {
+    //             console.error('Error moving list:', error);
+    //         }
+    //     });
+    // });
 });
-
-// Adding a new task
-document.addEventListener('click', event=>{
-    if (event.target.classList.contains('add-task-button')){
-        const addTaskButton = event.target;
-        const addTaskForm = addTaskButton.closest('.add-task-form');
-        const titleInput = addTaskForm.querySelector('.title');
-        const taskTitle = titleInput.value.trim();
-
-
-        if (taskTitle !== '') {
-            const showButton = addTaskForm.previousElementSibling;
-            const parentContainer = showButton.parentNode;
-            const tasksContainer = parentContainer.previousElementSibling;
-            addNewTask(tasksContainer, taskTitle);
-            resetForm(addTaskForm, showButton);
-        }
-    }
-})
-
-//
-// // Helper function to add a new task.
-// function addNewTask(tasksContainer, taskTitle) {
-//     const newTask = createNewTask(taskTitle);
-//     tasksContainer.appendChild(newTask);
-// }
-//
-// // Helper function to create a new task
-// function createNewTask(taskTitle) {
-//     const newTask = document.createElement('div');
-//     newTask.classList.add('task');
-//
-//     const checkbox = document.createElement('input');
-//     checkbox.type = 'checkbox';
-//     newTask.appendChild(checkbox);
-//
-//     newTask.appendChild(document.createTextNode(' '));
-//
-//     const taskLabel = document.createElement('label');
-//     taskLabel.textContent = taskTitle;
-//     newTask.appendChild(taskLabel);
-//
-//     return newTask;
-// }

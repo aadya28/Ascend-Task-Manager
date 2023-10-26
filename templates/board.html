@@ -11,8 +11,8 @@
 
         <div class="options-section">
             <div class="dropdown">
-                <button class="board-actions">&#8801;</button>
-                <div class="dropdown-content">
+                <button class="board-actions" id="board-actions-button" data-board-id="{{ board.id }}">&#8801;</button>
+                <div class="dropdown-content" id="board-actions-content" data-board-id="{{ board.id }}">
                     <a href="#" class="rename-board"
                        data-board-id="{{ board.id }}"
                        data-board-name="{{ board.name }}">Rename Board</a>
@@ -32,41 +32,43 @@
                 <div class="dropdown">
                     <button class="list-actions" data-list-id="{{ list.id }}">&#8226; &#8226; &#8226;</button>
                     <div class="dropdown-content" id="list-actions-content" data-list-id="{{ list.id }}">
-                        <a href="#rename" class="rename-list"
+                        <a href="#" class="rename-list"
                            data-list-id="{{ list.id }}"
                            data-list-title="{{ list.list_title }}">Rename List</a>
 
-                        <a href="#delete" class="delete-list"
+                        <a href="#" class="delete-list"
                            data-list-id="{{ list.id }}">Delete List</a>
 
-                        <a href="#copy" class="copy-list"
+                        <a href="#" class="copy-list"
                            data-list-id="{{ list.id }}">Copy List</a>
 
-                        <a href="#move" class="move-list"
+                        <a href="#" class="move-list"
                            data-list-id="{{ list.id }}">Move List</a>
                     </div>
 
                     <div class="dropdown-content" id="move-list-content" data-list-id="{{ list.id }}">
                         <h2 class="move-list-heading">Move List</h2>
 
-                        <label for="move-to-board">Board:</label>
-                        <select id="move-to-board">
-                            {% for board in boards %}
-                            <option>{{ board.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <form action="{{ url_for('move_list', list_id=list.id) }}" method="post">
+                            <label for="move-to-board">Board:</label>
+                            <select name="new_board_id" id="move-to-board">
+                                {% for board in boards %}
+                                <option value="{{ board.id }}">{{ board.name }}</option>
+                                {% endfor %}
+                            </select>
 
-                        <label for="move-to-position">Position:</label>
-                        <select id="move-to-position">
-                            {% for position in range(1, lists|length + 1) %}
-                            <option>{{ position }}</option>
-                            {% endfor %}
-                        </select>
+                            <label for="move-to-position">Position:</label>
+                            <select name="new_position" id="move-to-position">
+                                {% for position in range(1, lists|length + 1) %}
+                                <option value="{{ position }}">{{ position }}</option>
+                                {% endfor %}
+                            </select>
 
-                        <div class="button-group">
-                            <button class="move-list-button" type="submit" data-list-id="{{ list.id }}">Move List</button>
-                            <button class="cancel-move-list" type="reset" data-list-id="{{ list.id }}">Cancel</button>
-                        </div>
+                            <div class="button-group">
+                                <button class="move-list-button" type="submit" data-list-id="{{ list.id }}">Move List</button>
+                                <button class="cancel-move-list" type="reset" data-list-id="{{ list.id }}">Cancel</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
