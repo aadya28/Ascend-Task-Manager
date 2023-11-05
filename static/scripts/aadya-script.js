@@ -259,20 +259,49 @@ $(document).ready(function () {
 
 $(document).ready(function() {
     // Handle the form submission for creating a new list
-    $('#create-list-form').submit(function(e) {
+    $('.add-list-form').submit(function(e) {
         e.preventDefault();
-        var listTitle = $('#list-title-input').val();
+        var listTitle = $('[name="list_title"]').val();
+        var submitButton = document.querySelector(".add-list-button");
+        var showAddFormButton = document.querySelector(".show-add-form");
+        var addListForm = document.querySelector(".add-list-form");
+        console.log(showAddFormButton, addListForm);
+        var boardId = submitButton.getAttribute("data-board-id");
+        console.log(boardId);
 
         // Send an AJAX request to create a new list
         $.ajax({
             type: 'POST',
-            url: '/create_list',
-            data: { list_title: listTitle },
+            url: "/create_list/" + boardId,
+            data: { list_title: listTitle, board_id: boardId },
             success: function(response) {
+                const listId = response.list_id;
                 // Handle success - add the new list to the page
-                var newListHTML = '<div class="list-title-bar"><h2 class="title">' + listTitle + '</h2></div>';
-                $('.Lists').append(newListHTML);
-                $('#list-title-input').val(''); // Clear the input field
+                var newListHTML = '<div class="list">' +
+                    '<div class="list-title-bar">' +
+                    '<h2 class="title">' + listTitle + '</h2>' +
+                    '<button class="list-actions" data-list-id="' + listId + '">&#8226; &#8226; &#8226;</button>' +
+                    '</div>' +
+                    '<div class="list-content">' +
+                    '<!-- Add content here -->' +
+                    '</div>' +
+                    '<div class="add-task">' +
+                    '<button class="show-add-form">&#65291; Add Task</button>' +
+                    '<div class="add-task-form hidden">' +
+                    '<input type="text" class="title" placeholder="Enter Task Title">' +
+                    '<div class="button-group">' +
+                    '<button class="add-task-button">Add Task</button>' +
+                    '<button class="cancel-button">Cancel</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                // Insert the new list element before the "Create new List" button
+                $('.create-new-list').before(newListHTML);
+                // Reset the form and reload the site
+                addListForm.classList.add('hidden');
+                showAddFormButton.classList.remove('hidden');
+                location.reload();
             },
             error: function(error) {
                 console.error('Error creating list:', error);
@@ -290,15 +319,14 @@ $(document).ready(function() {
     // Event listener to show the list actions dropdown
     $('.Lists').on('click', '.list-actions', function(e) {
         const listId = $(this).data('list-id');
+        console.log(listId);
         const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
-
-        // console.log('ListActionsContent data-list-id:', listActionsContent.data('list-id'));
         showListActionsDropdown(listActionsContent);
     });
 
     // To hide the dropdowns
     $(document).on('click', function (e) {
-        if (!$(e.target).closest('.list-actions, .move-list, #move-list-content').length) {
+        if (!$(e.target).closest('.list-actions').length) {
             // Clicked outside both list actions and move list elements
             $('.dropdown-content').hide();
         }
@@ -405,19 +433,17 @@ $(document).ready(function() {
 
     // Function to copy a list
     function copyList(listId, listElement) {
-        // Close all dropdowns before copying the list
-        $('.dropdown-content').removeClass('visible');
-
-        // Send an AJAX request to copy the list
         $.ajax({
             type: 'POST',
             url: '/copy_list/' + listId,
             success: function(response) {
                 if (response && response.message === 'List copied successfully') {
-                    // Create a new list element with the copied data
+                    // Clone the list element and remove actions dropdown button
                     var copiedListHTML = listElement.clone();
-                    copiedListHTML.find('.list-actions').remove(); // Remove actions dropdown button
-                    listElement.after(copiedListHTML);
+                    copiedListHTML.find('.list-actions').remove();
+
+                    // Insert the copied list element before the "Create new List" button
+                    $('.create-new-list').before(copiedListHTML);
                     window.location.reload();
                 } else {
                     console.error('Error copying list:', response.message);
@@ -429,67 +455,4 @@ $(document).ready(function() {
         });
     }
 
-    // Function to Show the Move list dropdown
-    function showMoveListDropdown(listActionsContent, moveListContent) {        // Hide the list actions dropdown
-        // console.log("reached show-move-list-dropdown");
-        listActionsContent.hide(); // Hide the list actions dropdown
-        moveListContent.show();
-        adjustDropdown(moveListContent);
-    }
-
-    // Function to Hide the Move list dropdown
-    function hideMoveListDropdown(moveListContent) {        // Hide the list actions dropdown
-        // console.log("reached hide-move-list-dropdown");
-        moveListContent.hide();
-    }
-
-    // Event delegation for "Move List" button
-    $('.Lists').on('click', '.move-list', function(e) {
-        e.preventDefault();
-        const listId = $(this).data('list-id');
-        // console.log(listId);
-        const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
-        const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
-
-        // console.log('ListActionsContent data-list-id:', listActionsContent.data('list-id'));
-        // console.log('MoveListContent data-list-id:', moveListContent.data('list-id'));
-
-        showMoveListDropdown(listActionsContent, moveListContent);
-    });
-
-    // Event delegation for "Cancel Move List" button
-    $('.Lists').on('click', '.cancel-move-list', function(e) {
-        e.preventDefault();
-        console.log("clicked");
-        const listId = $(this).data('list-id');
-        const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
-        hideMoveListDropdown(moveListContent);
-    });
-
-    // // Event delegation for "Move List" form submission
-    // $('.Lists').on('click', '.move-list-button', function(e) {
-    //     e.preventDefault();
-    //     const listId = $(this).data('list-id');
-    //     console.log(listId);
-    //     const moveListContent = $('#move-list-content[data-list-id="' + listId + '"]');
-    //     console.log(moveListContent);
-    //     const newBoardId = moveListContent.find('#move-to-board').val();
-    //     const newPosition = moveListContent.find('#move-to-position').val();
-    //     console.log(newBoardId, newPosition);
-    //
-    //     // Send the form data to the server using AJAX
-    //     $.ajax({
-    //         type: 'POST',
-    //         url: '/move_list/' + listId,
-    //         data: { new_board_id: newBoardId, new_position: newPosition },
-    //         dataType: 'json',
-    //         success: function(data) {
-    //             console.log(data.message); // Log the server response message
-    //             hideMoveListDropdown(moveListContent); // Hide the move list dropdown
-    //         },
-    //         error: function(error) {
-    //             console.error('Error moving list:', error);
-    //         }
-    //     });
-    // });
 });

@@ -5,7 +5,7 @@
 {% block main_content %}
     <div class="board-title-bar">
         <div class="title-section">
-            <h1 class="title" id="board-title-{{ board.id }}">{{ board.name }} </h1>
+            <h1 class="title" id="board-title-{{ board.id }}">{{ board.name }}</h1>
             <button id="star-board">&#9734</button>
         </div>
 
@@ -41,34 +41,6 @@
 
                         <a href="#" class="copy-list"
                            data-list-id="{{ list.id }}">Copy List</a>
-
-                        <a href="#" class="move-list"
-                           data-list-id="{{ list.id }}">Move List</a>
-                    </div>
-
-                    <div class="dropdown-content" id="move-list-content" data-list-id="{{ list.id }}">
-                        <h2 class="move-list-heading">Move List</h2>
-
-                        <form action="{{ url_for('move_list', list_id=list.id) }}" method="post">
-                            <label for="move-to-board">Board:</label>
-                            <select name="new_board_id" id="move-to-board">
-                                {% for board in boards %}
-                                <option value="{{ board.id }}">{{ board.name }}</option>
-                                {% endfor %}
-                            </select>
-
-                            <label for="move-to-position">Position:</label>
-                            <select name="new_position" id="move-to-position">
-                                {% for position in range(1, lists|length + 1) %}
-                                <option value="{{ position }}">{{ position }}</option>
-                                {% endfor %}
-                            </select>
-
-                            <div class="button-group">
-                                <button class="move-list-button" type="submit" data-list-id="{{ list.id }}">Move List</button>
-                                <button class="cancel-move-list" type="reset" data-list-id="{{ list.id }}">Cancel</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
@@ -94,10 +66,10 @@
             <button class="show-add-form">Create new List</button>
 
             <div class="add-list-form hidden">
-                <form method="POST" action="{{ url_for('board', board_id=board.id) }}">
+                <form method="POST" action="{{ url_for('create_list', board_id=board.id) }}">
                     <input type="text" name="list_title" class="title" placeholder="Enter List Title" required>
                     <div class="button-group">
-                        <button class="add-list-button" type="submit">Add List</button>
+                        <button class="add-list-button" type="submit" data-board-id="{{ board.id }}">Add List</button>
                         <button class="cancel-button" id="cancel-list-button" type="reset">Cancel</button>
                     </div>
                 </form>
