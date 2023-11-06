@@ -43,7 +43,7 @@
         <div class="sidebar">
             {% block sidebar %}
             <div class="sidebar-heading">
-                <a href="#">Your Workspace</a>
+                <a href="{{ url_for('workspace') }}">Your Workspace</a>
             </div>
 
             <div class="sidebar-content">
@@ -60,9 +60,11 @@
                     {% block sidebar_boards %}
                         {% if boards %}
                             {% for board in boards %}
+                            <a href="{{ url_for('board', board_id=board.id) }}">
                             <div class="link">
-                                <a href="{{ url_for('board', board_id=board.id) }}">{{ board.name }}</a>
+                                {{ board.name }}
                             </div>
+                            </a>
                             {% endfor %}
                         {% else %}
                             <p>No boards available.</p>
@@ -80,6 +82,7 @@
         </div>
     </main>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{url_for('static', filename='scripts/script.js')}}"></script>
     <script src="{{url_for('static', filename='scripts/aadya-script.js')}}"></script>
 </body>

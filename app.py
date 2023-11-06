@@ -12,11 +12,16 @@ class Boards(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     wallpaper = db.Column(db.String(255), nullable=True)
+    lists = db.relationship('Lists', backref='board', lazy=True)
+
+class Lists(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    list_title = db.Column(db.String(255), nullable=False)
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'), nullable=False)
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    board_name = db.Column(db.String(100), nullable=False)
-    list_name = db.Column(db.String(100), nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
     task_name = db.Column(db.String(100), nullable=False)
 
 # Move the creation of the table into a function
@@ -26,6 +31,11 @@ def create_tables():
 
 # Initialize the app context by creating the tables
 create_tables()
+
+@app.route('/')
+def workspace():
+    boards = Boards.query.all()
+    return render_template('workspace.html', boards=boards)
 
 @app.route('/create_board', methods=['POST'])
 def create_board():
@@ -42,17 +52,23 @@ def create_board():
             db.session.commit()
     return redirect('/')
 
-@app.route('/')
-def workspace():
-    boards = Boards.query.all()
-    return render_template('workspace.html', boards=boards)
-
-@app.route('/board/<int:board_id>')
+@app.route('/board/<int:board_id>', methods=['GET', 'POST'])
 def board(board_id):
     board = Boards.query.get(board_id)
     boards = Boards.query.all()
+    lists = Lists.query.filter_by(board_id=board_id).all()
+
     if board:
-        return render_template('board.html', board=board, boards=boards)
+        if request.method == 'POST':
+            list_title = request.form.get('list_title')
+
+            if list_title:
+                new_list = Lists(list_title=list_title, board_id=board_id)
+                db.session.add(new_list)
+                db.session.commit()
+                return redirect(url_for('board', board_id=board_id))
+
+        return render_template('board.html', board=board, boards=boards, lists=lists)
     else:
         return "Board not found", 404
 
@@ -60,9 +76,17 @@ def board(board_id):
 def delete_board(board_id):
     board = Boards.query.get(board_id)
     if board:
-        db.session.delete(board)
-        db.session.commit()
-        return jsonify({'message': 'Board deleted successfully'}), 200
+        try:
+            # Delete the associated lists first
+            Lists.query.filter_by(board_id=board_id).delete()
+
+            # Then delete the board
+            db.session.delete(board)
+            db.session.commit()
+            return jsonify({'message': 'Board deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting board:", str(e))  # Debugging statement for any exceptions
+            return jsonify({'message': 'Error deleting board'}), 500
     else:
         return jsonify({'message': 'Board not found'}), 404
 
@@ -79,5 +103,74 @@ def rename_board(board_id):
         else:
             return jsonify({'message': 'Board not found'}), 404
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@app.route('/create_list/<int:board_id>', methods=['POST'])
+def create_list(board_id):
+    if request.method == 'POST':
+        list_title = request.form.get('list_title')
+
+        if list_title:
+            new_list = Lists(list_title=list_title, board_id=board_id)
+            db.session.add(new_list)
+            db.session.commit()
+            print( 'List created successfully')
+            return jsonify({'list_id': new_list.id, 'message': 'List created successfully'}), 200
+        else:
+            return jsonify({'message': 'Invalid list title'}), 400
+
+@app.route('/delete_list/<int:list_id>', methods=['POST'])
+def delete_list(list_id):
+    print("List ID:", list_id)  # Debugging statement to check the received list ID
+    list_to_delete = Lists.query.get(list_id)
+    if list_to_delete:
+        try:
+            # Delete the associated tasks first (optional)
+            # Task.query.filter_by(list_id=list_id).delete()
+
+            # Delete the list
+            db.session.delete(list_to_delete)
+            db.session.commit()
+            print( 'List deleted successfully')
+            return jsonify({'message': 'List deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting list:", str(e))  # Debugging statement for any exceptions
+            return jsonify({'message': 'Error deleting list'}), 500
+    else:
+        return jsonify({'message': 'List not found'}), 404
+
+@app.route('/rename_list/<int:list_id>', methods=['POST'])
+def rename_list(list_id):
+    if request.method == 'POST':
+        new_list_title = request.json.get('newListTitle')
+
+        # Check if the provided list title is not empty
+        if new_list_title:
+            list_to_rename = Lists.query.get(list_id)
+
+            if list_to_rename:
+                list_to_rename.list_title = new_list_title
+                db.session.commit()
+                return jsonify({'message': 'List renamed successfully'}), 200
+            else:
+                return jsonify({'message': 'List not found'}), 404
+        else:
+            return jsonify({'message': 'Invalid list title'}), 400
+
+@app.route('/copy_list/<int:list_id>', methods=['POST'])
+def copy_list(list_id):
+    if request.method == 'POST':
+        list_to_copy = Lists.query.get(list_id)
+
+        if list_to_copy:
+            try:
+                new_list = Lists(list_title=list_to_copy.list_title, board_id=list_to_copy.board_id)
+                db.session.add(new_list)
+                db.session.commit()
+                return jsonify({'message': 'List copied successfully', 'copied_list_id': new_list.id}), 200
+            except Exception as e:
+                print("Error copying list:", str(e))
+                return jsonify({'message': 'Error copying list'}), 500
+        else:
+            return jsonify({'message': 'List not found'}), 404
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

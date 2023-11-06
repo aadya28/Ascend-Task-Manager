@@ -5,13 +5,14 @@
 {% block main_content %}
     <div class="board-title-bar">
         <div class="title-section">
-            <h1 class="title" id="board-title-{{ board.id }}">{{ board.name }} </h1>
+            <h1 class="title" id="board-title-{{ board.id }}">{{ board.name }}</h1>
             <button id="star-board">&#9734</button>
         </div>
+
         <div class="options-section">
             <div class="dropdown">
-                <button class="board-actions">&#8801;</button>
-                <div class="dropdown-content">
+                <button class="board-actions" id="board-actions-button" data-board-id="{{ board.id }}">&#8801;</button>
+                <div class="dropdown-content" id="board-actions-content" data-board-id="{{ board.id }}">
                     <a href="#" class="rename-board"
                        data-board-id="{{ board.id }}"
                        data-board-name="{{ board.name }}">Rename Board</a>
@@ -23,14 +24,66 @@
     </div>
 
     <div class="Lists" style="background: {% if board.wallpaper %}url('{{ url_for('static', filename='assets/images/' + board.wallpaper) }}') no-repeat center center fixed; background-size: cover;{% else %} #caaa3c;{% endif %}">
-        <div class="add-list">
-        <button class="show-add-form">&#65291; Add a List</button>
-            <div class="add-list-form hidden">
-                <input type="text" class="title" placeholder="Enter List Title">
-                <div class="button-group">
-                    <button class="add-list-button" id="add-list-button">Add List</button>
-                    <button class="cancel-button">Cancel</button>
+
+        {% for list in lists %}
+        <div class="list">
+            <div class="list-title-bar">
+                <h2 class="title">{{ list.list_title }}</h2>
+                <div class="dropdown">
+                    <button class="list-actions" data-list-id="{{ list.id }}">&#8226; &#8226; &#8226;</button>
+                    <div class="dropdown-content" id="list-actions-content" data-list-id="{{ list.id }}">
+                        <a href="#" class="rename-list"
+                           data-list-id="{{ list.id }}"
+                           data-list-title="{{ list.list_title }}">Rename List</a>
+
+                        <a href="#" class="delete-list"
+                           data-list-id="{{ list.id }}">Delete List</a>
+
+                        <a href="#" class="copy-list"
+                           data-list-id="{{ list.id }}">Copy List</a>
+                    </div>
                 </div>
+            </div>
+
+            <div class="list-content">
+                <!-- All Tasks -->
+            </div>
+
+            <div class="add-task">
+                <button class="show-add-form">&#65291; Add Task</button>
+                <div class="add-task-form hidden">
+                    <input type="text" class="title" placeholder="Enter Task Title">
+                    <div class="button-group">
+                        <button class="add-task-button">Add Task</button>
+                        <button class="cancel-button">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="create-new-list">
+            <button class="show-add-form">Create new List</button>
+
+            <div class="add-list-form hidden">
+                <form method="POST" action="{{ url_for('create_list', board_id=board.id) }}">
+                    <input type="text" name="list_title" class="title" placeholder="Enter List Title" required>
+                    <div class="button-group">
+                        <button class="add-list-button" type="submit" data-board-id="{{ board.id }}">Add List</button>
+                        <button class="cancel-button" id="cancel-list-button" type="reset">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmation-popup" class="popup">
+        <div class="popup-content">
+            <h3>Delete Board?</h3>
+            <p>This will delete <span class="board-name-highlight">{{ board.name }}</span></p>
+            <div class="button-group">
+                <button id="cancel-delete">Cancel</button>
+                <button id="confirm-delete">Confirm</button>
             </div>
         </div>
     </div>
