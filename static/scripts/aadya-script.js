@@ -262,12 +262,10 @@ $(document).ready(function() {
     $('.add-list-form').submit(function(e) {
         e.preventDefault();
         var listTitle = $('[name="list_title"]').val();
-        var submitButton = document.querySelector(".add-list-button");
+        var submitListButton = document.querySelector(".add-list-button");
         var showAddFormButton = document.querySelector(".show-add-form");
         var addListForm = document.querySelector(".add-list-form");
-        console.log(showAddFormButton, addListForm);
-        var boardId = submitButton.getAttribute("data-board-id");
-        console.log(boardId);
+        var boardId = submitListButton.getAttribute("data-board-id");
 
         // Send an AJAX request to create a new list
         $.ajax({
@@ -454,5 +452,40 @@ $(document).ready(function() {
             }
         });
     }
+});
 
+$(document).ready(function() {
+
+    // Function to create a Task.
+    $('.add-task-form').submit(function(e) {
+        e.preventDefault();
+        var taskTitle = $('[name="task_title"]').val();
+        var submitTaskButton = $(this).find('.add-task-button');
+        var listId = submitTaskButton.data("list-id");
+        var showTaskFormButton = $(".show-add-form[data-list-id='" + listId + "']");
+
+        if (!taskTitle) {
+            console.error('Task name cannot be empty');
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: "/create_task/" + listId,
+            data: { task_title: taskTitle, list_id: listId },
+            success: function(response) {
+                const task_id = response.task_id;
+                console.log(task_id);
+                const newTask = $('<div>').addClass('task').text(taskTitle);
+                $('#list-content-' + listId).append(newTask);
+                $('[name="task_title"]').val('');
+                var addTaskForm = $('#add-task-form-' + listId);
+                addTaskForm.addClass('hidden');
+                showTaskFormButton.removeClass('hidden');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error adding task:', error);
+            }
+        });
+    });
 });

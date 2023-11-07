@@ -45,18 +45,25 @@
                 </div>
             </div>
 
-            <div class="list-content">
-                <!-- All Tasks -->
+            <div class="list-content" id="list-content-{{ list.id }}">
+                {% for task in list.tasks %}
+                <div class="task">
+                    {{ task.task_name }}
+                </div>
+                {% endfor %}
             </div>
 
             <div class="add-task">
-                <button class="show-add-form">&#65291; Add Task</button>
-                <div class="add-task-form hidden">
-                    <input type="text" class="title" placeholder="Enter Task Title">
-                    <div class="button-group">
-                        <button class="add-task-button">Add Task</button>
-                        <button class="cancel-button">Cancel</button>
-                    </div>
+                <button class="show-add-form" data-list-id="{{ list.id }}">&#65291; Add Task</button>
+
+                <div id="add-task-form-{{ list.id }}" class="add-task-form hidden">
+                    <form method="POST" action="{{ url_for('create_task', list_id=list.id) }}">
+                        <input type="text" name="task_title" id="task-name-{{ list.id }}" class="title" placeholder="Enter Task Title">
+                        <div class="button-group">
+                            <button class="add-task-button" type="submit" data-list-id="{{ list.id }}">Add Task</button>
+                            <button class="cancel-button" id="cancel-task-button" type="reset">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

@@ -297,6 +297,8 @@ main{
 .add-task-form input,
 .add-list-form input {
     padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .add-task-form .button-group,
