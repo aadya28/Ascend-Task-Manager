@@ -236,7 +236,7 @@ main{
 }
 
 .task:hover {
-    background-color: rgba(128, 128, 128, 0.51);
+    border: #0606d1 solid 2px;
 }
 
 /* add-task has a button to add a new task*/
@@ -564,6 +564,32 @@ p {
     margin-bottom: 0.5em;
     padding: 0.4em;
     border-radius: 0.4em;
+}
+
+/* Task container */
+.task {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    justify-content: space-between;
+}
+
+.task-actions {
+    width: 1.8em;
+    height: 1.8em;
+    padding: 2px;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    color: #2b3648;
+}
+
+.task-actions:hover {
+    background-color: rgba(139, 138, 138, 0.51);
+}
+
+.task-checkbox {
+    margin-right: 4px;
 }
 
 .hidden {

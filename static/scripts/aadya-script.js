@@ -281,7 +281,6 @@ $(document).ready(function() {
                     '<button class="list-actions" data-list-id="' + listId + '">&#8226; &#8226; &#8226;</button>' +
                     '</div>' +
                     '<div class="list-content">' +
-                    '<!-- Add content here -->' +
                     '</div>' +
                     '<div class="add-task">' +
                     '<button class="show-add-form">&#65291; Add Task</button>' +
@@ -475,16 +474,81 @@ $(document).ready(function() {
             data: { task_title: taskTitle, list_id: listId },
             success: function(response) {
                 const task_id = response.task_id;
-                console.log(task_id);
-                const newTask = $('<div>').addClass('task').text(taskTitle);
+
+                // Create a new task element with an unchecked checkbox
+                const newTask = $('<div>').addClass('task');
+                const taskSection = $('<div>').addClass('task-section');
+                const checkbox = $('<input>').attr({
+                    type: 'checkbox',
+                    id: 'task-check-' + task_id,
+                    class: 'task-checkbox',
+                });
+                const label = $('<label>').attr('for', 'task-check-' + task_id).text(taskTitle);
+
+                // Append the taskSection to the new task
+                newTask.append(taskSection);
+
+                // Append the checkbox and label to the task section
+                taskSection.append(checkbox).append(label);
+
+                // Create the task dropdown HTML
+                const dropdown = $('<div>').addClass('dropdown');
+                const taskActionsButton = $('<button>').addClass('task-actions').html('<i class="fa-solid fa-pen"></i>');
+                const taskActionsContent = $('<div>').addClass('dropdown-content');
+                const renameTaskLink = $('<a>').addClass('rename-task').attr({
+                    href: '#',
+                    'data-task-id': task_id,
+                    'data-task-title': taskTitle,
+                }).text('Rename Task');
+                const deleteTaskLink = $('<a>').addClass('delete-task').attr({
+                    href: '#',
+                    'data-task-id': task_id,
+                }).text('Delete Task');
+                const copyTaskLink = $('<a>').addClass('copy-task').attr({
+                    href: '#',
+                    'data-task-id': task_id,
+                }).text('Copy Task');
+
+                // Append links to the task dropdown content
+                taskActionsContent.append(renameTaskLink, deleteTaskLink, copyTaskLink);
+
+                // Append the task dropdown button and content to the task element
+                dropdown.append(taskActionsButton).append(taskActionsContent);
+                newTask.append(dropdown);
+
+                // Append the new task element to the list content
                 $('#list-content-' + listId).append(newTask);
+
+                // Reset the task title input
                 $('[name="task_title"]').val('');
+
+                // Hide the add task form and show the add task button
                 var addTaskForm = $('#add-task-form-' + listId);
                 addTaskForm.addClass('hidden');
                 showTaskFormButton.removeClass('hidden');
             },
             error: function(xhr, status, error) {
                 console.error('Error adding task:', error);
+            }
+        });
+    });
+
+    // Event listener for updating the task status when the checkbox is clicked
+    $('.Lists').on('change', '.task-checkbox', function() {
+        var checkbox = $(this);
+        var task_id = checkbox.attr('id').split('-')[2];
+        var is_completed = checkbox.prop('checked');
+
+        // Send an AJAX request to update the task status
+        $.ajax({
+            type: 'POST',
+            url: "/update_task_status/" + task_id,
+            data: { is_completed: is_completed },
+            success: function(response) {
+                console.log('Task status updated successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating task status:', error);
             }
         });
     });

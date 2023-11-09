@@ -24,6 +24,7 @@ class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
     task_name = db.Column(db.String(100), nullable=False)
+    is_completed = db.Column(db.Boolean, default=False)
 
 # Move the creation of the table into a function
 def create_tables():
@@ -191,10 +192,12 @@ def copy_list(list_id):
 @app.route('/create_task/<int:list_id>', methods=['POST'])
 def create_task(list_id):
     if request.method == 'POST':
-        task_name = request.form.get('task_title')  # Update to 'task_title'
+        task_name = request.form.get('task_title')
+        # Set is_completed to False by default
+        is_completed = False
 
         if task_name:
-            new_task = Tasks(list_id=list_id, task_name=task_name)
+            new_task = Tasks(list_id=list_id, task_name=task_name, is_completed=is_completed)
             db.session.add(new_task)
             db.session.commit()
 
@@ -202,6 +205,20 @@ def create_task(list_id):
             return jsonify({'message': 'Task added successfully', 'task_id': new_task.id}), 200
         else:
             return jsonify({'message': 'Invalid task name'}), 400
+
+@app.route('/update_task_status/<int:task_id>', methods=['POST'])
+def update_task_status(task_id):
+    if request.method == 'POST':
+        is_completed = request.form.get('is_completed')
+
+        task = Tasks.query.get(task_id)
+
+        if task:
+            task.is_completed = is_completed.lower() == 'true' if is_completed else False
+            db.session.commit()
+            return jsonify({'message': 'Task status updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Task not found'}), 404
 
 @app.route('/copy_task/<int:task_id>', methods=['POST'])
 def copy_task(task_id):
