@@ -166,20 +166,6 @@ main{
     font-size: 2.5vh;
 }
 
-.edit-board-title,
-.edit-list-title {
-    font-size: 2.5vh;
-    width: 100%;
-}
-
-.edit-task-title:focus {
-    outline: none; /* Remove the default blue outline on focus */
-    border: none;
-    font-size: 2.3vh;
-    width: auto;
-    height: 3vh;
-}
-
 /* list-action is a button */
 .list-actions {
     border: none;
@@ -574,34 +560,6 @@ p {
 
 #confirm-delete:hover {
     background: #BF1A1C;
-}
-
-#move-list-content {
-    display: none;
-    width: 16em;
-    height: 15em;
-    border-radius: 0.4em;
-    padding: 0.6em;
-}
-
-#move-list-content .move-list-heading {
-    text-align: center;
-    font-size: 1em;
-}
-
-#move-list-content label {
-    display: block;
-    font-size: 1em;
-    margin-top: 0.5em;
-}
-
-#move-list-content select {
-    width: 100%;
-    font-size: 1em;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
-    padding: 0.4em;
-    border-radius: 0.4em;
 }
 
 .hidden {

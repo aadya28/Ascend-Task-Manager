@@ -331,25 +331,33 @@ $(document).ready(function() {
 
     // Use event delegation for "Rename List" link
     $('.Lists').on('click', '.rename-list', function () {
+        const renameListLink = $(this);
+        const listId = renameListLink.data('list-id');
         var listTitleElement = $(this).closest(".list-title-bar").find(".title");
-        var currentTitle = listTitleElement.text();
+        var currentListTitle = listTitleElement.text();
 
-        // Create the input field with the value
-        var inputField = $("<input type='text' class='edit-list-title'>");
-        inputField.val(currentTitle);
+        // Creating an input field
+        const inputField = $('<input>', {
+            type: 'text',
+            value: currentListTitle,
+            style: 'font-size: 2.5vh; width: 100%; padding: 5px;',
+        });
 
-        // Replace the title with the input field
-        listTitleElement.html(inputField);
+        // Replace the board title with the input field
+        listTitleElement.text('');
+        listTitleElement.append(inputField);
 
-        // Focus on the input field
+        // Move the cursor to the end of the input value
         inputField.focus();
-
-        // Set the cursor position to the end of the input field
-        var inputLength = inputField.val().length;
-        inputField[0].setSelectionRange(inputLength, inputLength);
+        const inputValue = inputField.val();
+        inputField[0].selectionEnd = inputValue.length;
 
         // Close the dropdown menu
         $('.dropdown-content').hide();
+
+        inputField.on('blur', function () {
+            renameList(listId, currentListTitle);
+        });
 
         // Handle saving the new title on blur or Enter key press
         inputField.on("blur keydown", function (event) {
@@ -584,27 +592,29 @@ $(document).ready(function() {
 
     // Use event delegation for "Rename Task" link
     $('.task').on('click', '.rename-task', function () {
+        const renameTaskLink = $(this);
+        const taskId = renameTaskLink.data('task-id');
         var taskTitleElement = $(this).closest(".task").find(".task-section label");
-        var currentTitle = taskTitleElement.text();
+        const taskTitle = taskTitleElement.text();
 
-        // Create the input field with the value
-        var inputField = $("<input type='text' class='edit-task-title'>");
-        inputField.val(currentTitle);
+        // Creating an input field
+        const inputField = $('<input>', {
+            type: 'text',
+            value: taskTitle,
+            style: 'outline: none; border: none; font-size: 2.3vh; width: auto; height: 3vh;',
+        });
 
-        // Replace the title with the input field
-        taskTitleElement.html(inputField);
+        // Replace the board title with the input field
+        taskTitleElement.text('');
+        taskTitleElement.append(inputField);
 
-        // Focus on the input field
+        // Move the cursor to the end of the input value
         inputField.focus();
-        inputField.select();
+        const inputValue = inputField.val();
+        inputField[0].selectionEnd = inputValue.length;
 
-        // Set the cursor position to the end of the input field
-        var inputLength = inputField.val().length;
-        inputField[0].setSelectionRange(inputLength, inputLength);
-
-        // Apply a style to the selected text
-        inputField.css({
-            background: 'rgba(19,111,255,0.3)', // Adjust the background color as needed
+        inputField.on('blur', function () {
+            renameTask(inputField, taskId, taskTitle);
         });
 
         hideTaskDropdown();
