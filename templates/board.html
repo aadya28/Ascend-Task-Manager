@@ -52,9 +52,9 @@
                         <input type="checkbox" id="task-check-{{ task.id }}" class="task-checkbox" {% if task.is_completed %}checked{% endif %}>
                         <label for="task-check-{{ task.id }}">{{ task.task_name }}</label>
                     </div>
-                    <div class="dropdown">
+                    <div class="task-dropdown">
                         <button class="task-actions" data-task-id="{{ task.id }}"><i class="fa-solid fa-pen"></i></button>
-                        <div class="dropdown-content" id="task-actions-content-{{ task.id }}" data-task-id="{{ task.id }}">
+                        <div class="task-dropdown-content" id="task-actions-content" data-task-id="{{ task.id }}">
                             <a href="#" class="rename-task"
                                data-task-id="{{ task.id }}"
                                data-task-title="{{ task.task_name }}">Rename Task</a>
@@ -63,7 +63,8 @@
                                data-task-id="{{ task.id }}">Delete Task</a>
 
                             <a href="#" class="copy-task"
-                               data-task-id="{{ task.id }}">Copy Task</a>
+                               data-task-id="{{ task.id }}"
+                               data-list-id="{{ list.id }}">Copy Task</a>
                         </div>
                     </div>
                 </div>

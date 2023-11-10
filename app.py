@@ -220,6 +220,39 @@ def update_task_status(task_id):
         else:
             return jsonify({'message': 'Task not found'}), 404
 
+@app.route('/rename_task/<int:task_id>', methods=['POST'])
+def rename_task(task_id):
+    try:
+        data = request.get_json()
+        new_task_title = data.get('newTaskTitle')
+
+        # Update the task title in the database
+        task = Tasks.query.get(task_id)
+        if task:
+            task.task_name = new_task_title
+            db.session.commit()
+
+            # Return a JSON response indicating success
+            return jsonify({'message': 'Task renamed successfully'})
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/delete_task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    task_to_delete = Tasks.query.get(task_id)
+    if task_to_delete:
+        try:
+            db.session.delete(task_to_delete)
+            db.session.commit()
+            return jsonify({'message': 'Task deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting task:", str(e))
+            return jsonify({'message': 'Error deleting task'}), 500
+    else:
+        return jsonify({'message': 'Task not found'}), 404
+
 @app.route('/copy_task/<int:task_id>', methods=['POST'])
 def copy_task(task_id):
     if request.method == 'POST':
@@ -236,20 +269,6 @@ def copy_task(task_id):
                 return jsonify({'message': 'Error copying task'}), 500
         else:
             return jsonify({'message': 'Task not found'}), 404
-
-@app.route('/delete_task/<int:task_id>', methods=['POST'])
-def delete_task(task_id):
-    task_to_delete = Tasks.query.get(task_id)
-    if task_to_delete:
-        try:
-            db.session.delete(task_to_delete)
-            db.session.commit()
-            return jsonify({'message': 'Task deleted successfully'}), 200
-        except Exception as e:
-            print("Error deleting task:", str(e))
-            return jsonify({'message': 'Error deleting task'}), 500
-    else:
-        return jsonify({'message': 'Task not found'}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

@@ -118,7 +118,7 @@ $(document).ready(function () {
         // Function to show the board dropdown
         function showBoardActionsDropdown(boardId) {
             // console.log("show board actions");
-            $('.dropdown-content').hide(); // Hide other dropdowns
+            // $('.dropdown-content').hide(); // Hide other dropdowns
 
             const $boardActionsContent = $('#board-actions-content[data-board-id="' + boardId + '"]');
             console.log('BoardActionsContent data-board-id:', $boardActionsContent);
@@ -259,7 +259,7 @@ $(document).ready(function () {
 
 $(document).ready(function() {
     // Handle the form submission for creating a new list
-    $('.add-list-form').submit(function(e) {
+    $(document).on('submit', '.add-list-form', function(e)  {
         e.preventDefault();
         var listTitle = $('[name="list_title"]').val();
         var submitListButton = document.querySelector(".add-list-button");
@@ -316,15 +316,15 @@ $(document).ready(function() {
     // Event listener to show the list actions dropdown
     $('.Lists').on('click', '.list-actions', function(e) {
         const listId = $(this).data('list-id');
-        console.log(listId);
+        // console.log(listId);
         const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
         showListActionsDropdown(listActionsContent);
     });
 
-    // To hide the dropdowns
-    $(document).on('click', function (e) {
-        if (!$(e.target).closest('.list-actions').length) {
-            // Clicked outside both list actions and move list elements
+    // Global click event listener to close the board dropdown when clicking outside of it
+    $(document).click(function (event) {
+        if (!$(event.target).closest('.list-actions, .dropdown-content').length) {
+            // Clicked outside both board actions and board dropdown elements
             $('.dropdown-content').hide();
         }
     });
@@ -456,9 +456,10 @@ $(document).ready(function() {
 $(document).ready(function() {
 
     // Function to create a Task.
-    $('.add-task-form').submit(function(e) {
+    $(document).on('submit', '.add-task-form', function(e) {
         e.preventDefault();
-        var taskTitle = $('[name="task_title"]').val();
+        var taskTitle = $(this).find('[name="task_title"]').val();
+        console.log(taskTitle);
         var submitTaskButton = $(this).find('.add-task-button');
         var listId = submitTaskButton.data("list-id");
         var showTaskFormButton = $(".show-add-form[data-list-id='" + listId + "']");
@@ -492,9 +493,9 @@ $(document).ready(function() {
                 taskSection.append(checkbox).append(label);
 
                 // Create the task dropdown HTML
-                const dropdown = $('<div>').addClass('dropdown');
+                const taskDropdown = $('<div>').addClass('task-dropdown');
                 const taskActionsButton = $('<button>').addClass('task-actions').html('<i class="fa-solid fa-pen"></i>');
-                const taskActionsContent = $('<div>').addClass('dropdown-content');
+                const taskActionsContent = $('<div>').addClass('task-dropdown-content');
                 const renameTaskLink = $('<a>').addClass('rename-task').attr({
                     href: '#',
                     'data-task-id': task_id,
@@ -513,19 +514,21 @@ $(document).ready(function() {
                 taskActionsContent.append(renameTaskLink, deleteTaskLink, copyTaskLink);
 
                 // Append the task dropdown button and content to the task element
-                dropdown.append(taskActionsButton).append(taskActionsContent);
-                newTask.append(dropdown);
+                taskDropdown.append(taskActionsButton).append(taskActionsContent);
+                newTask.append(taskDropdown);
 
                 // Append the new task element to the list content
                 $('#list-content-' + listId).append(newTask);
 
                 // Reset the task title input
-                $('[name="task_title"]').val('');
+                $(this).find('[name="task_title"]').val('');
 
                 // Hide the add task form and show the add task button
                 var addTaskForm = $('#add-task-form-' + listId);
                 addTaskForm.addClass('hidden');
                 showTaskFormButton.removeClass('hidden');
+
+                window.location.reload();
             },
             error: function(xhr, status, error) {
                 console.error('Error adding task:', error);
@@ -552,4 +555,148 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Function to show the task dropdown
+    function showTaskDropdown(taskActionsContent) {
+        taskActionsContent.show();
+    }
+
+    // Function to hide the task dropdown
+    function hideTaskDropdown() {
+        $('.task-dropdown-content').hide();
+    }
+
+    // Event listener to show the task actions dropdown
+    $('.task').on('click', '.task-actions', function(e) {
+        const taskId = $(this).data('task-id');
+        // console.log(taskId);
+        const taskActionsContent = $('#task-actions-content[data-task-id="' + taskId + '"]');
+        showTaskDropdown(taskActionsContent);
+    });
+
+    // Global click event listener to close the task dropdown when clicking outside of it
+    $(document).click(function (event) {
+        if (!$(event.target).closest('.task-actions, .task-dropdown-content').length) {
+            // Clicked outside both board actions and board dropdown elements
+            $('.task-dropdown-content').hide();
+        }
+    });
+
+    // Use event delegation for "Rename Task" link
+    $('.task').on('click', '.rename-task', function () {
+        var taskTitleElement = $(this).closest(".task").find(".task-section label");
+        var currentTitle = taskTitleElement.text();
+
+        // Create the input field with the value
+        var inputField = $("<input type='text' class='edit-task-title'>");
+        inputField.val(currentTitle);
+
+        // Replace the title with the input field
+        taskTitleElement.html(inputField);
+
+        // Focus on the input field
+        inputField.focus();
+        inputField.select();
+
+        // Set the cursor position to the end of the input field
+        var inputLength = inputField.val().length;
+        inputField[0].setSelectionRange(inputLength, inputLength);
+
+        // Apply a style to the selected text
+        inputField.css({
+            background: 'rgba(19,111,255,0.3)', // Adjust the background color as needed
+        });
+
+        hideTaskDropdown();
+        // Handle saving the new title on blur or Enter key press
+        inputField.on("blur keydown", function (event) {
+            var taskId = $(this).closest(".task").find(".rename-task").data("task-id");
+
+            if (event.type === "keydown" && event.key === "Enter") {
+                // Prevent line breaks in the input field
+                event.preventDefault();
+                // Trigger the same behavior as when the input field loses focus
+                inputField.blur();
+            } else if (event.type === "blur") {
+                var newTitle = inputField.val();
+                renameTask(taskId, newTitle);
+            }
+        });
+    });
+
+    // Function to Rename a task
+    function renameTask(taskId, newTitle) {
+        // Send an AJAX request to update the task title
+        $.ajax({
+            type: "POST",
+            url: "/rename_task/" + taskId,
+            data: JSON.stringify({ "newTaskTitle": newTitle }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                if (response && response.message === "Task renamed successfully") {
+                    // Update the displayed task title
+                    var taskTitleElement = $('.rename-task[data-task-id="' + taskId + '"]').closest(".task").find(".task-section label");
+                    taskTitleElement.text(newTitle);
+                } else {
+                    console.error("Error renaming task: " + response.message);
+                }
+            },
+            error: function (error) {
+                // Handle the error if necessary
+                console.error("Error renaming task: " + error.responseText);
+            }
+        });
+    }
+
+    // Function to delete a task
+    function deleteTask(taskId) {
+        $.ajax({
+            type: 'POST',
+            url: "/delete_task/" + taskId,
+            success: function(response) {
+                // Remove the deleted task from the UI
+                $('#task-check-' + taskId).closest('.task').remove();
+                console.log('Task deleted successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error deleting task:', error);
+            }
+        });
+    }
+
+    // Event listener for deleting a task
+    $('.task').on('click', '.delete-task', function(e) {
+        e.preventDefault();
+        var taskId = $(this).data('task-id');
+        deleteTask(taskId);
+    });
+
+    // Function to copy a task
+    function copyTask(taskId, listId) {
+        $.ajax({
+            type: 'POST',
+            url: "/copy_task/" + taskId,
+            success: function(response) {
+                var clonedTask = $('#task-check-' + taskId).closest('.task').clone();
+                $('#list-content-' + listId).append(clonedTask);
+                window.location.reload();
+                console.log('Task copied successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error copying task:', error);
+            }
+        });
+    }
+
+    // Event listener for copying a task
+    $('.task').on('click', '.copy-task', function(e) {
+        e.preventDefault();
+        hideTaskDropdown();
+
+        var taskId = $(this).data('task-id');
+        var listId = $(this).data('list-id');
+        copyTask(taskId, listId);
+    });
+
 });
