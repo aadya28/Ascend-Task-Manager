@@ -307,7 +307,7 @@ $(document).ready(function() {
     });
 
     // Function to show the list actions dropdown
-    function showListActionsDropdown(listActionsContent) {
+    function showListDropdown(listActionsContent) {
         // console.log("show list actions");
         listActionsContent.show(); // Show the list actions dropdown
         adjustDropdown(listActionsContent);
@@ -318,7 +318,7 @@ $(document).ready(function() {
         const listId = $(this).data('list-id');
         // console.log(listId);
         const listActionsContent = $('#list-actions-content[data-list-id="' + listId + '"]');
-        showListActionsDropdown(listActionsContent);
+        showListDropdown(listActionsContent);
     });
 
     // Global click event listener to close the board dropdown when clicking outside of it
@@ -349,7 +349,7 @@ $(document).ready(function() {
         inputField[0].setSelectionRange(inputLength, inputLength);
 
         // Close the dropdown menu
-        $('.dropdown-content').removeClass('visible');
+        $('.dropdown-content').hide();
 
         // Handle saving the new title on blur or Enter key press
         inputField.on("blur keydown", function (event) {

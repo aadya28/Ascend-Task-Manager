@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship, backref
 
 app = Flask(__name__, template_folder='templates')
 
@@ -12,17 +13,21 @@ class Boards(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     wallpaper = db.Column(db.String(255), nullable=True)
-    lists = db.relationship('Lists', backref='board', lazy=True)
+
+    # Add cascade options to delete associated lists and tasks
+    lists = relationship('Lists', backref='board', lazy=True, cascade='all, delete-orphan')
 
 class Lists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'), nullable=False)
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id', ondelete='CASCADE'), nullable=False)
     list_title = db.Column(db.String(255), nullable=False)
-    tasks = db.relationship('Tasks', backref='list', lazy=True)
+
+    # Add cascade options to delete associated tasks
+    tasks = relationship('Tasks', backref='list', lazy=True, cascade='all, delete-orphan')
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id', ondelete='CASCADE'), nullable=False)
     task_name = db.Column(db.String(100), nullable=False)
     is_completed = db.Column(db.Boolean, default=False)
 
@@ -85,10 +90,6 @@ def delete_board(board_id):
     board = Boards.query.get(board_id)
     if board:
         try:
-            # Delete the associated lists first
-            Lists.query.filter_by(board_id=board_id).delete()
-
-            # Then delete the board
             db.session.delete(board)
             db.session.commit()
             return jsonify({'message': 'Board deleted successfully'}), 200
@@ -131,10 +132,6 @@ def delete_list(list_id):
     list_to_delete = Lists.query.get(list_id)
     if list_to_delete:
         try:
-            # Delete the associated tasks first (optional)
-            Tasks.query.filter_by(list_id=list_id).delete()
-
-            # Delete the list
             db.session.delete(list_to_delete)
             db.session.commit()
             print( 'List deleted successfully')
