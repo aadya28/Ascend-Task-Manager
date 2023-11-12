@@ -45,18 +45,43 @@
                 </div>
             </div>
 
-            <div class="list-content">
-                <!-- All Tasks -->
+            <div class="list-content" id="list-content-{{ list.id }}">
+                {% for task in list.tasks %}
+                <div class="task">
+                    <div class="task-section">
+                        <input type="checkbox" id="task-check-{{ task.id }}" class="task-checkbox" {% if task.is_completed %}checked{% endif %}>
+                        <label for="task-check-{{ task.id }}">{{ task.task_name }}</label>
+                    </div>
+                    <div class="task-dropdown">
+                        <button class="task-actions" data-task-id="{{ task.id }}"><i class="fa-solid fa-pen"></i></button>
+                        <div class="task-dropdown-content" id="task-actions-content" data-task-id="{{ task.id }}">
+                            <a href="#" class="rename-task"
+                               data-task-id="{{ task.id }}"
+                               data-task-title="{{ task.task_name }}">Rename Task</a>
+
+                            <a href="#" class="delete-task"
+                               data-task-id="{{ task.id }}">Delete Task</a>
+
+                            <a href="#" class="copy-task"
+                               data-task-id="{{ task.id }}"
+                               data-list-id="{{ list.id }}">Copy Task</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
 
             <div class="add-task">
-                <button class="show-add-form">&#65291; Add Task</button>
-                <div class="add-task-form hidden">
-                    <input type="text" class="title" placeholder="Enter Task Title">
-                    <div class="button-group">
-                        <button class="add-task-button">Add Task</button>
-                        <button class="cancel-button">Cancel</button>
-                    </div>
+                <button class="show-add-form" data-list-id="{{ list.id }}">&#65291; Add Task</button>
+
+                <div id="add-task-form-{{ list.id }}" class="add-task-form hidden">
+                    <form method="POST" action="{{ url_for('create_task', list_id=list.id) }}">
+                        <input type="text" name="task_title" id="task-name-{{ list.id }}" class="title" placeholder="Enter Task Title">
+                        <div class="button-group">
+                            <button class="add-task-button" type="submit" data-list-id="{{ list.id }}">Add Task</button>
+                            <button class="cancel-button" id="cancel-task-button" type="reset">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

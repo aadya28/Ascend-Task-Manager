@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship, backref
 
 app = Flask(__name__, template_folder='templates')
 
@@ -12,17 +13,23 @@ class Boards(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     wallpaper = db.Column(db.String(255), nullable=True)
-    lists = db.relationship('Lists', backref='board', lazy=True)
+
+    # Add cascade options to delete associated lists and tasks
+    lists = relationship('Lists', backref='board', lazy=True, cascade='all, delete-orphan')
 
 class Lists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    board_id = db.Column(db.Integer, db.ForeignKey('boards.id', ondelete='CASCADE'), nullable=False)
     list_title = db.Column(db.String(255), nullable=False)
-    board_id = db.Column(db.Integer, db.ForeignKey('boards.id'), nullable=False)
+
+    # Add cascade options to delete associated tasks
+    tasks = relationship('Tasks', backref='list', lazy=True, cascade='all, delete-orphan')
 
 class Tasks(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    list_id = db.Column(db.Integer, db.ForeignKey('lists.id'), nullable=False)
+    list_id = db.Column(db.Integer, db.ForeignKey('lists.id', ondelete='CASCADE'), nullable=False)
     task_name = db.Column(db.String(100), nullable=False)
+    is_completed = db.Column(db.Boolean, default=False)
 
 # Move the creation of the table into a function
 def create_tables():
@@ -68,7 +75,13 @@ def board(board_id):
                 db.session.commit()
                 return redirect(url_for('board', board_id=board_id))
 
-        return render_template('board.html', board=board, boards=boards, lists=lists)
+        # Fetch tasks for each list
+        tasks_for_lists = {}
+        for a_list in lists:
+            tasks = Tasks.query.filter_by(list_id=a_list.id).all()
+            tasks_for_lists[a_list.id] = tasks
+
+        return render_template('board.html', board=board, boards=boards, lists=lists, tasks=tasks_for_lists)
     else:
         return "Board not found", 404
 
@@ -77,10 +90,6 @@ def delete_board(board_id):
     board = Boards.query.get(board_id)
     if board:
         try:
-            # Delete the associated lists first
-            Lists.query.filter_by(board_id=board_id).delete()
-
-            # Then delete the board
             db.session.delete(board)
             db.session.commit()
             return jsonify({'message': 'Board deleted successfully'}), 200
@@ -123,10 +132,6 @@ def delete_list(list_id):
     list_to_delete = Lists.query.get(list_id)
     if list_to_delete:
         try:
-            # Delete the associated tasks first (optional)
-            # Task.query.filter_by(list_id=list_id).delete()
-
-            # Delete the list
             db.session.delete(list_to_delete)
             db.session.commit()
             print( 'List deleted successfully')
@@ -165,12 +170,102 @@ def copy_list(list_id):
                 new_list = Lists(list_title=list_to_copy.list_title, board_id=list_to_copy.board_id)
                 db.session.add(new_list)
                 db.session.commit()
+
+                # Copy tasks from the original list to the new list
+                tasks_to_copy = Tasks.query.filter_by(list_id=list_id).all()
+                for task in tasks_to_copy:
+                    new_task = Tasks(list_id=new_list.id, task_name=task.task_name)
+                    db.session.add(new_task)
+
+                db.session.commit()
+
                 return jsonify({'message': 'List copied successfully', 'copied_list_id': new_list.id}), 200
             except Exception as e:
                 print("Error copying list:", str(e))
                 return jsonify({'message': 'Error copying list'}), 500
+            else:
+                return jsonify({'message': 'List not found'}), 404
+
+@app.route('/create_task/<int:list_id>', methods=['POST'])
+def create_task(list_id):
+    if request.method == 'POST':
+        task_name = request.form.get('task_title')
+        # Set is_completed to False by default
+        is_completed = False
+
+        if task_name:
+            new_task = Tasks(list_id=list_id, task_name=task_name, is_completed=is_completed)
+            db.session.add(new_task)
+            db.session.commit()
+
+            # Return the task ID in the response
+            return jsonify({'message': 'Task added successfully', 'task_id': new_task.id}), 200
         else:
-            return jsonify({'message': 'List not found'}), 404
+            return jsonify({'message': 'Invalid task name'}), 400
+
+@app.route('/update_task_status/<int:task_id>', methods=['POST'])
+def update_task_status(task_id):
+    if request.method == 'POST':
+        is_completed = request.form.get('is_completed')
+
+        task = Tasks.query.get(task_id)
+
+        if task:
+            task.is_completed = is_completed.lower() == 'true' if is_completed else False
+            db.session.commit()
+            return jsonify({'message': 'Task status updated successfully'}), 200
+        else:
+            return jsonify({'message': 'Task not found'}), 404
+
+@app.route('/rename_task/<int:task_id>', methods=['POST'])
+def rename_task(task_id):
+    try:
+        data = request.get_json()
+        new_task_title = data.get('newTaskTitle')
+
+        # Update the task title in the database
+        task = Tasks.query.get(task_id)
+        if task:
+            task.task_name = new_task_title
+            db.session.commit()
+
+            # Return a JSON response indicating success
+            return jsonify({'message': 'Task renamed successfully'})
+        else:
+            return jsonify({'error': 'Task not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/delete_task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    task_to_delete = Tasks.query.get(task_id)
+    if task_to_delete:
+        try:
+            db.session.delete(task_to_delete)
+            db.session.commit()
+            return jsonify({'message': 'Task deleted successfully'}), 200
+        except Exception as e:
+            print("Error deleting task:", str(e))
+            return jsonify({'message': 'Error deleting task'}), 500
+    else:
+        return jsonify({'message': 'Task not found'}), 404
+
+@app.route('/copy_task/<int:task_id>', methods=['POST'])
+def copy_task(task_id):
+    if request.method == 'POST':
+        task_to_copy = Tasks.query.get(task_id)
+
+        if task_to_copy:
+            try:
+                new_task = Tasks(list_id=task_to_copy.list_id, task_name=task_to_copy.task_name)
+                db.session.add(new_task)
+                db.session.commit()
+                return jsonify({'message': 'Task copied successfully', 'copied_task_id': new_task.id}), 200
+            except Exception as e:
+                print("Error copying task:", str(e))
+                return jsonify({'message': 'Error copying task'}), 500
+        else:
+            return jsonify({'message': 'Task not found'}), 404
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
