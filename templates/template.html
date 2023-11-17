@@ -40,8 +40,8 @@
     </header>
 
     <main>
+        {% block sidebar %}
         <div class="sidebar">
-            {% block sidebar %}
             <div class="sidebar-heading">
                 <a href="{{ url_for('workspace') }}">Your Workspace</a>
             </div>
@@ -52,7 +52,6 @@
                     <div class="link"><a href="#">Vendor Recommendations</a></div>
                     <div class="link"><a href="#">Theme Decoration Ideas</a></div>
                     <div class="link"><a href="#">Guest List Manager</a></div>
-                    <div class="link"><a href="#">Calendar</a></div>
                 </div>
 
                 <div class="sidebar-boards">
@@ -72,8 +71,8 @@
                     {% endblock %}
                 </div>
             </div>
-            {% endblock %}
         </div>
+        {% endblock %}
 
         <div class="main-content">
             {% block main_content %}
