@@ -1,12 +1,28 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
+from dotenv import load_dotenv
+import os
 
+# Load environment variables from .env
+load_dotenv()
+
+# Get database credentials from environment variables
+DB_USER = os.getenv('DB_USER', 'root')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_NAME = os.getenv('DB_NAME', 'Task_Manager')
+
+# Initialize Flask app
 app = Flask(__name__, template_folder='templates')
 
-# MySQL Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:my-secret-pw@localhost/Task_Manager'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # To suppress a warning
+# SQLAlchemy configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize database
 db = SQLAlchemy(app)
 
 class Boards(db.Model):
@@ -268,4 +284,4 @@ def copy_task(task_id):
             return jsonify({'message': 'Task not found'}), 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)

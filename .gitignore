@@ -163,3 +163,4 @@ cython_debug/
 
 # Ignore JetBrains IDE .idea/ directory
 .idea/
+.env

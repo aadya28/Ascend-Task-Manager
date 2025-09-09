@@ -294,7 +294,7 @@ $(document).ready(function() {
                     '</div>' +
                     '</div>';
                 // Insert the new list element before the "Create new List" button
-                $('.create-new-list').before(newListHTML);
+                $('.add-list').before(newListHTML);
                 // Reset the form and reload the site
                 addListForm.classList.add('hidden');
                 showAddFormButton.classList.remove('hidden');
@@ -448,7 +448,7 @@ $(document).ready(function() {
                     copiedListHTML.find('.list-actions').remove();
 
                     // Insert the copied list element before the "Create new List" button
-                    $('.create-new-list').before(copiedListHTML);
+                    $('.add-list').before(copiedListHTML);
                     window.location.reload();
                 } else {
                     console.error('Error copying list:', response.message);

@@ -87,8 +87,8 @@
         </div>
         {% endfor %}
 
-        <div class="create-new-list">
-            <button class="show-add-form">Create new List</button>
+        <div class="add-list">
+            <button class="show-add-form">&#65291; Add List</button>
 
             <div class="add-list-form hidden">
                 <form method="POST" action="{{ url_for('create_list', board_id=board.id) }}">

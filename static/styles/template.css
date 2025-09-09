@@ -1,3 +1,18 @@
+:root {
+    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-alice: 'Alice', Georgia, serif;
+
+    --main-font: var(--font-alice);
+
+    /* Header height variable */
+    --header-height: 10vh;
+}
+
+/* Apply universally */
+* {
+    font-family: var(--main-font), serif;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -14,7 +29,7 @@ header {
     position: fixed;
     top: 0;
     width: 100%;
-    height: 15vh;
+    height: var(--header-height);
     box-sizing: border-box;
     background-color: #012b29;
     padding: 1vh;
@@ -31,87 +46,38 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 1.5vh;
 }
 
 .logo {
-    width: 13vw;
-    height: 13vh;
+    height: 4.75vh;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 }
 
 .logo img {
-    width: 100%;
-    height: auto;
+    height: 100%;
+    width: auto;
 }
 
-.navbar-links ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.navbar-links li {
-    margin-right: 5vh;
-}
-
-.navbar-links a {
-    font-size: 3vh;
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-}
-
-.navbar-links a:hover {
+.logo-text{
     color: #caaa3c;
+    font-weight: 100;
+    font-size: 5vh;
 }
 
-.dropdown {
-    position: relative;
-}
-
-.dropbtn {
-    cursor: pointer;
-}
-
-nav .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #012b29;
-    min-width: 10vh;
-    z-index: 1;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-nav .dropdown-content a {
-    color: white;
-    padding: 2vh 2vh;
-    text-decoration: none;
-    display: block;
-    font-size: 3vh
-}
-
-nav .dropdown-content a:hover {
-    color: white;
-    background-color: #0f3a35;
-}
-
-nav .dropdown:hover .dropdown-content {
-    display: block;
-}
 /*---------------------------------------------------------------------------*/
 /* The main tag is further divided into 2 parts:
 1. The sidebar
 2. The main-content */
 main{
     width: 100%;
-    height: calc(100% - 15vh);
+    height: calc(100vh - var(--header-height));
     box-sizing: border-box;
     position: fixed;
-    top: 15vh;
+    top: var(--header-height);
     display: flex;
     flex-direction: row;
 }
@@ -133,8 +99,9 @@ main{
 }
 
 .sidebar-heading {
-    padding: 1vh 0 0.9vh 2vh;
+    padding: 2vh;
     border-bottom: 1px solid #fff;
+    font-size: 5vh;
 }
 
 .sidebar-heading a {
@@ -143,9 +110,7 @@ main{
     font-size: 2.5vw;
 }
 
-/* The sidebar-content has 2 parts:
-1. sidebar-features
-2. sidebar-boards */
+/* The sidebar-content has sidebar-boards */
 .sidebar-content {
     flex: 1;
     display: flex;
@@ -159,14 +124,13 @@ main{
     margin-bottom: 2vh;
 }
 
-.sidebar-features a,
 .sidebar-boards a {
     text-decoration: none;
     color: white;
     font-size: 2.5vh;
 }
 
-/* All the features and boards are in the class "link" */
+/* All the boards are in the class "link" */
 .link{
     padding: 1vh 0 1vh 0;
     transition: background-color 0.3s;
