@@ -1,7 +1,7 @@
 /* Main-content takes up all the leftover screen */
 .main-content {
     flex: 1;
-    font-family: 'Nunito Sans', sans-serif;
+    font-family: var(--font-inter);
     background: #caaa3c;
     display: flex;
     flex-direction: column;

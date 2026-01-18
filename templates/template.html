@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Template{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alice&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="{{url_for('static', filename='styles/template.css')}}">
     <link rel="stylesheet" href="{{url_for('static', filename='styles/components.css')}}">
 <!--    for icons used-->
@@ -57,8 +63,12 @@
     </main>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{{url_for('static', filename='scripts/template.js')}}"></script>
-    <script src="{{url_for('static', filename='scripts/components.js')}}"></script>
+    <!-- Modular JavaScript Components -->
+    <script src="{{url_for('static', filename='scripts/common-utils.js')}}"></script>
+    <script src="{{url_for('static', filename='scripts/form-handlers.js')}}"></script>
+    <script src="{{url_for('static', filename='scripts/board-operations.js')}}"></script>
+    <script src="{{url_for('static', filename='scripts/list-operations.js')}}"></script>
+    <script src="{{url_for('static', filename='scripts/task-operations.js')}}"></script>
 </body>
 
 </html>

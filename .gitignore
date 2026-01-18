@@ -128,6 +128,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Keep config.env.example but ignore config.env if it has sensitive data
+# (Currently config.env has non-sensitive defaults, so it's committed)
+# config.env
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -163,4 +167,3 @@ cython_debug/
 
 # Ignore JetBrains IDE .idea/ directory
 .idea/
-.env

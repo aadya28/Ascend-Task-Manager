@@ -6,17 +6,17 @@
     <div class="board-title-bar">
         <div class="title-section">
             <h1 class="title" id="board-title-{{ board.id }}">{{ board.name }}</h1>
-            <button id="star-board">&#9734</button>
+            <button id="star-board">&#9734;</button>
         </div>
 
         <div class="options-section">
             <div class="dropdown">
                 <button class="board-actions" id="board-actions-button" data-board-id="{{ board.id }}">&#8801;</button>
                 <div class="dropdown-content" id="board-actions-content" data-board-id="{{ board.id }}">
-                    <a href="#" class="rename-board"
+                    <a href="javascript:void(0)" class="rename-board"
                        data-board-id="{{ board.id }}"
                        data-board-name="{{ board.name }}">Rename Board</a>
-                    <a href="#" class="delete-board"
+                    <a href="javascript:void(0)" class="delete-board"
                        data-board-id="{{ board.id }}">Delete Board</a>
                 </div>
             </div>
@@ -31,15 +31,15 @@
                 <h2 class="title">{{ list.list_title }}</h2>
                 <div class="dropdown">
                     <button class="list-actions" data-list-id="{{ list.id }}">&#8226; &#8226; &#8226;</button>
-                    <div class="dropdown-content" id="list-actions-content" data-list-id="{{ list.id }}">
-                        <a href="#" class="rename-list"
+                    <div class="dropdown-content" id="list-actions-content-{{ list.id }}" data-list-id="{{ list.id }}">
+                        <a href="javascript:void(0)" class="rename-list"
                            data-list-id="{{ list.id }}"
                            data-list-title="{{ list.list_title }}">Rename List</a>
 
-                        <a href="#" class="delete-list"
+                        <a href="javascript:void(0)" class="delete-list"
                            data-list-id="{{ list.id }}">Delete List</a>
 
-                        <a href="#" class="copy-list"
+                        <a href="javascript:void(0)" class="copy-list"
                            data-list-id="{{ list.id }}">Copy List</a>
                     </div>
                 </div>
@@ -54,15 +54,15 @@
                     </div>
                     <div class="task-dropdown">
                         <button class="task-actions" data-task-id="{{ task.id }}"><i class="fa-solid fa-pen"></i></button>
-                        <div class="task-dropdown-content" id="task-actions-content" data-task-id="{{ task.id }}">
-                            <a href="#" class="rename-task"
+                        <div class="task-dropdown-content" id="task-actions-content-{{ task.id }}" data-task-id="{{ task.id }}">
+                            <a href="javascript:void(0)" class="rename-task"
                                data-task-id="{{ task.id }}"
                                data-task-title="{{ task.task_name }}">Rename Task</a>
 
-                            <a href="#" class="delete-task"
+                            <a href="javascript:void(0)" class="delete-task"
                                data-task-id="{{ task.id }}">Delete Task</a>
 
-                            <a href="#" class="copy-task"
+                            <a href="javascript:void(0)" class="copy-task"
                                data-task-id="{{ task.id }}"
                                data-list-id="{{ list.id }}">Copy Task</a>
                         </div>
@@ -79,7 +79,7 @@
                         <input type="text" name="task_title" id="task-name-{{ list.id }}" class="title" placeholder="Enter Task Title">
                         <div class="button-group">
                             <button class="add-task-button" type="submit" data-list-id="{{ list.id }}">Add Task</button>
-                            <button class="cancel-button" id="cancel-task-button" type="reset">Cancel</button>
+                            <button class="cancel-button" id="cancel-task-button-{{ list.id }}" type="reset">Cancel</button>
                         </div>
                     </form>
                 </div>
